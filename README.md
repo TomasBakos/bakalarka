@@ -1,2 +1,2 @@
-# bakalarka
-Bakalarska praca
+# Bakalárska práca
+Tvorba interaktívnych príbehov v hrách

@@ -1,0 +1,36 @@
+V tejto kapitole opíšem všetkú potrebnú teóriu, poznatky, metódy, ktoré sú potrebné alebo mi pomohli pri vypracovávaní témy zadania.
+
+\section{Inšpirácia}
+Už dlhší čas som mal chuť vytvoriť nejakú počítačovú hru. Rád som v pozícii hráča a tak som si chcel aj vyskúšať pohľad na hry z tej druhej strany a vyskúšať si aspoň v malom merítku s akými problémami sa vývojari stretávajú. V poslednej dobe ma začala zaujímať téma umelej inteligencie a tak téma tejto práce bola príjemným skĺbením mojich dvoch záujmov.
+
+\section{Plánovanie}
+Plánovanie je problém alebo oblasť, ktorou sa zaoberá umelá inteligencia. Je to proces hľadania nejakých akcií, ktoré je potrebné aby sa vykonali na dosiahnutie vytýčeného cieľa. Je základným stavebným kameňom v problematike zadanej témy a teda upresním nejaké základné definicie z tejto oblasti.
+\subsection{Fluent}
+Fluent vo všeobecnosti je niečo, čo dokáže plynúť ako tekutina. V našom ponímaní je to objekt, ktorý opisuje či niečo platí alebo nie a je schopný sa meniť časom. Je to vlastne niečo ako predikát v prvorádovej logike.
+\subsection{Stav}
+Stav je definícia, opis sveta alebo objektu s ktorým pracujeme. Príbeh bude vlastne tvorený menením stvavov sveta, čo nás privádza k akciám.
+\subsection{Akcia}
+Akcia obsahuje predpoklady a dôsledky. Predpoklady sú nejaké podmienky alebo stav, ktorý musí byť splnený aby sa daná akcia mohla vykonať. Dôsledky na druhej strane sú efekty, ktoré ovplyvnia aktuálny stav sveta alebo iného objektu na ktorom sa akcia vykonáva. Pomocou akcií sa bude posúvať príbeh a vyvýjať postavy.
+\subsection{Riešenie/Plán}
+Nakoniec k riešeniu (plánu) sa dostávame zadefinovaním počiatočného a koncového stavu (cieľa) a nasledným prechádzaním akcií, ktoré možno vykonať až kým nedosiahneme cieľa.Teda riešenie plánovania (plán) je neprerušená postupnosť akcií z počiatočného stavu do cieľa.
+
+\section{Výpočtová naratológia}
+Naratológiu ako pojem prvý krát zaviedol Tzvetan Todorov, bulharsko-francúzsky filozof, historik, sociológ a literárny kritik. Je to humanitná disciplína, ktorá sa zaoberá štúdiom narácie, teda príbehu alebo postupnosti udalostí. Ďalej skúma štruktúru, logiku, princípy a tiež aj reprezentáciu narácie. Zo začiatku dominovali štrukturálne prístupy štúdia z ktorých sa vyvynuli rôzne teórie, koncepty a analytické procedúry. Tieto koncepty a modely sú používané ako heuristické nástroje a naratologické teórie hrajú kľúčovú roľu v našej schopnosti vytvárať a spracovávať narácie vo všetkých možných formách. Čo nás privádza k umelej inteligencii a výpočtovej naratológii.\par
+Výpočtová naratológia študuje tvorbu príbehov z pohľadu vypočítateľnosti a spracovávania informácií. Zameriava sa na algoritmické procesy ktoré vytváraju a interpretujú príbehy a tiež na modelovanie štruktúry príbehu z hľadiska vypočítateľných reprezentácií. Sem patria aj spôsoby automatickej interpretácie a tvorby príbehov, daľej aj prístupy k rozprávaniu príbehov pomocou umelej inteligencie v hrách. Teda výskumníci sa snažili vytvoriť systémy umelej inteligencie, ktoré by rozprávali príbeh ako ľudia a tiež sa pokúšali vytvoriť inteligentné počítačové prostredie na interakciu s naráciami. V rámci vývoja týchto systémov, výskumníci využili princípy z naratológie na vytvorenie výpočtových princípov a vysvetlili prepojenia medzi nimi. Jeden z príncípov bolo využitie naratologického rozdelenia fabuly a sujetu. Kde fabula je zvyčajne charakterizovaná ako prirodzený sled udalostí celého príbehu v chronologickom poradí. Sujet na druhú stranu je umelecky realizovaná fabula, teda je to konštrukcia epickej alebo dramatickej fabuly. Výpočtová naratológia bola významne ovlplyvnená aj lingvistikou napríklad gramatikami pribehov. Je to rýchlo rozvíjajúce sa odvetvie, hľavne vďaka zvýšenému záujmu o interaktívne hry a príbehy, ktoré sa javia ako živé.
+\subsection{Systémy generujúce príbehy}
+Systémy generujúce príbehy vznikali ako odpoveďe na otázky výpočtovej naratológie. Hľadaním všeobecných vypočtových metód, ktoré by sa dali použiť na rôzne druhy narácie sa v 70-tych rokoch 20. storočia upriamila pozornosť na plánovanie. Odvtedy sa toto zameranie veľmi nezmenilo, ale plánovacie techniky sa vylepšili aby mohli poňať obsiahle problémy naratológie.\par
+V problematike plánovania, na pochopenie príbehu je potrebné vyvodenie založené na Aristotelovom ponímaní mýtu, kde príčiny udalostí príbehu a cieľe zapojených postáv su známe. V podstate zrekonštruovať z viet v sujete plán, ktorý reprezentuje súslednosť udalostí, ktoré dokážu počiatočný stav transformovať na cieľový. Takéto systémy, ktoré sa snažia pochopiť príbeh sa nedostali veľmi daľeko z troch dôvodov. Po prvé, vyvodenie cieľov zainteresovaných postáv si vyžaduje obrovský priestor na prehľadávanie. Daľej, ľudia využívaju obrovské množstvo znalostí na pochopenie aj tých najjednoduchších príbehov. Príkladom nám môže byť veta od anglického spisovateľa Edwarda Morgana Fostera: "Kráľ zomrel a kráľovná zomrela od žiaľu.", z ktorej nám ľudom je jasné prečo bola kráľovná smutná, avšak definovať takúto dávku zdravého rozumu počítaču je náročné. Po tretie, niektoré aspekty jazyka, ktoré sú pre pochopenie príbehu dôležité, sa tažko formalizujú ako napríklad humor, irónia a iné nepatrné lexikálne prostriedky. Na druhú stranu algoritmy, ktoré využívajú na generovanie príbehu plánovanie pomocou fabuli sa osvedčili oveľa viac aj preto že si autor môže výrazne obmedziť systém. O takýchto algoritmoch si v tejto sekcii povieme viac. 
+\\
+\\
+\\
+
+
+-goap
+-story gen alg
+-(vyp.) narratology
+-prehlad. alg
+-java
+-git/hub
+-interaktivita pribehov
+-pristupy k tvorbe pribehu
+-solver(?)

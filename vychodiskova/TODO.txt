@@ -1,0 +1,9 @@
+-goap
+-story gen alg
+-(vyp.) narratology
+-prehlad. alg
+-java
+-git/hub
+-interaktivita pribehov
+-pristupy k tvorbe pribehu
+-solver(?)

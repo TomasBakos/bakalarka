@@ -1,6 +1,5 @@
 -goap
 -story gen alg
--(vyp.) narratology
 -prehlad. alg
 -java
 -git/hub

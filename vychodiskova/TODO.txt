@@ -1,8 +1,0 @@
--goap
--story gen alg
--prehlad. alg
--java
--git/hub
--interaktivita pribehov
--pristupy k tvorbe pribehu
--solver(?)

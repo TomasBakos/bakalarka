@@ -15,7 +15,7 @@
 \usepackage[bf,belowskip=-18pt,aboveskip=4pt]{caption}
 
 %\usepackage[backend=bibtex,style=mla]{biblatex}
-\usepackage[natbib=true, style=fmph]{biblatex}
+\usepackage[natbib=true, style=fmph, backend=bibtex]{biblatex}
 \bibliography{bibliography}
 
 \usepackage{float}
@@ -24,6 +24,10 @@
 %\titlespacing{\subsection}{0pt}{25pt}{15pt} %left top down
 \setcounter{secnumdepth}{5}
 \setcounter{tocdepth}{5}
+
+\usepackage{newunicodechar}
+\newunicodechar{ﬁ}{fi}
+\newunicodechar{ﬀ}{ff}
 
 %toto sposobi ze slova sa nebudu na konci riadkov rozdelovat pomlckami 
 \tolerance=100000000

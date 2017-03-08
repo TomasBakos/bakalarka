@@ -9,7 +9,7 @@ public abstract class Action {
 	
 	private boolean inRange = false;
 	
-	public int interest = 1;
+	public float interest = 1;
 	
 	public Object target;
 	
@@ -20,6 +20,7 @@ public abstract class Action {
 	
 	public void doReset(){
 		target = null;
+		inRange = false;
 		reset();
 	}
 	
@@ -76,11 +77,11 @@ public abstract class Action {
 		effects.remove(key);
 	}
 
-	public HashMap<String, Object> getPredpoklady() {
+	public HashMap<String, Object> getPreconditions() {
 		return preconditions;
 	}
 
-	public HashMap<String, Object> getDosledky() {
+	public HashMap<String, Object> getEffects() {
 		return effects;
 	}
 	

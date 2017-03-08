@@ -1,32 +1,19 @@
 package goap;
 
 import java.util.*;
-import fsm.*;
 
 public class Agent {
-	private FSM stateMachine;
-	
-	private FSMState idleState; //najdi co mas robit
-	private FSMState moveToState; // pohni sa k cielu
-	private FSMState performActionState; // vykonaj akciu
-	
 	private HashSet<Action> availableActions;
-	private Queue<Action> currentActions;
+	private Stack<Action> remainingActions;
+	private HashMap<String, Object> worldState;
 	
 	private IGoap dataProvider; //implementacia classy ktora poskytuje data o svete a pocuva feedback planovania
 	
 	private Planner planner;
 	
-	void Start(){
-		stateMachine = new FSM();
-		availableActions = new HashSet<Action>();
-		currentActions = new LinkedList<Action>();
+	public void start(){
 		planner = new Planner();
-		findDataProvider();
-		createIdleState();
-		createMoveToState();
-		createPerformActionState();
-		stateMachine.pushState(idleState);
+		getDataProvider();
 		loadActions();
 	}
 	
@@ -34,36 +21,23 @@ public class Agent {
 		availableActions.add(a);
 	}
 	
-	//todo
-	public Action getAction(Action action) {
-		return null;
-	}
-	
 	public void removeAction(Action action) {
 		availableActions.remove(action);
 	}
 	
 	private boolean hasActionPlan(){
-		return currentActions.size() > 0;
+		return remainingActions.size() > 0;
 	}
 	
-	//todo
-	private void createIdleState() {
+	/**
+	 * Nastavi data providera
+	 */
+	private void getDataProvider() {
 	}
 	
-	//todo
-	private void createMoveToState() {
-	}
-	
-	//todo
-	private void createPerformActionState() {
-	}
-	
-	//todo
-	private void findDataProvider() {
-	}
-	
-	//todo
+	/**
+	 * Nacita akcie, ktore sa aktualne mozu vykonat.
+	 */
 	private void loadActions (){
 	}
 }

@@ -7,11 +7,11 @@ public abstract class Action {
 	private HashMap<String, Object> preconditions;
 	private HashMap<String, Object> effects;
 	
-	private boolean inRange = false;
+	//private boolean inRange = false;
 	
 	public float interest = 1;
 	
-	public Object target;
+	//public Object target;
 	
 	public Action(){
 		preconditions = new HashMap<String, Object>();
@@ -19,8 +19,8 @@ public abstract class Action {
 	}
 	
 	public void doReset(){
-		target = null;
-		inRange = false;
+		//target = null;
+		//inRange = false;
 		reset();
 	}
 	
@@ -47,18 +47,21 @@ public abstract class Action {
      * Ak nie tak moveTo stav nebude potrebny pre tuto akciu.
      */
     public abstract boolean reqInRange ();
-	
+    
+    public abstract String print();
+    
 	/**
 	 * Sme v dosahu ciela?
 	 * MoveTo stav toto nastavi a zresetuje sa vzdy ked je
 	 * vykonana akcia.
 	 */
 	public boolean isInRange(){
-		return inRange;
+		//return inRange;
+		return false;
 	}
 	
 	public void setInRange(boolean inRange){
-		this.inRange = inRange;
+		//this.inRange = inRange;
 	}
 	
 	public void addPrecondition(String key, Object val){
@@ -84,5 +87,4 @@ public abstract class Action {
 	public HashMap<String, Object> getEffects() {
 		return effects;
 	}
-	
 }

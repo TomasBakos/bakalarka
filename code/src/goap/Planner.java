@@ -30,7 +30,7 @@ public class Planner {
 		} else {
 			Node best = leaves.get(0);
 			for (Node n : leaves){
-				if (best.cost < n.cost){
+				if (best.cost > n.cost){
 					best = n;
 				}
 			}

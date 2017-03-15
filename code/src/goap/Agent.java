@@ -1,59 +1,49 @@
 package goap;
 
 import java.util.*;
-import actions.*;
 
 public class Agent {
-	private HashSet<Action> availableActions;
-	public Stack<Action> remainingActions;
-	private HashMap<String, Object> worldState;
-	
-	private IGoap dataProvider; //implementacia classy ktora poskytuje data o svete a pocuva feedback planovania
-	
+	private HashSet<Action> actions;
+	private Stack<Action> remainingActions;
 	private Planner planner;
+	private HashMap<String, Object> goal;
 	
-	public Agent(){
+	public Agent(HashSet<Action> actions){
+		this.actions = actions;
 		planner = new Planner();
-		loadActions();
 	}
 	
-	public void addAction(Action a) {
-		availableActions.add(a);
-	}
-	
-	public void removeAction(Action action) {
-		availableActions.remove(action);
-	}
-	
+	/**
+	 * Ma co agent este vykonavat?
+	 */
 	public boolean hasActionPlan(){
 		return remainingActions.size() > 0;
 	}
 	
-	/**
-	 * Nastavi data providera
-	 */
-	public void setDataProvider(IGoap prov) {
-		dataProvider = prov;
-	}
 	
-	public void findNewGoal(){
-		worldState = dataProvider.getWorldState();
-		remainingActions = planner.plan(this, availableActions, worldState, dataProvider.createGoalState());
+	/**
+	 * Nastavi novy ciel agentovi
+	 * @param goal je dany novy ciel.
+	 */
+	public void setNewGoal(HashMap<String, Object> goal){
+		this.goal = goal;
 	}
 	
 	/**
-	 * Nacita akcie, ktore sa aktualne mozu vykonat.
+	 * Najde cestu k dodanemu cielu pomocou @param actions.
 	 */
-	public void loadActions (){
-		availableActions = new HashSet<Action>();
-		availableActions.add(new MoveToCastleFromGarden());
-		availableActions.add(new MoveToCastleFromVillage());
-		availableActions.add(new MoveToGarden());
-		availableActions.add(new MoveToJail());
-		availableActions.add(new MoveToVillageFromCastle());
-		availableActions.add(new MoveToVillageFromCave());
-		availableActions.add(new MoveToCave());
-		availableActions.add(new MoveToCastleFromJail());
-		availableActions.add(new KillDragon());
+	public Stack<Action> findNewPlan(HashSet<Action> actions, HashMap<String, Object> worldState){
+		remainingActions = planner.plan(this, actions, worldState, goal);
+		return remainingActions;
+	}
+	
+	public ArrayList<Action> getAvailableActions(HashMap<String, Object> worldState){
+		ArrayList<Action> availableActions = new ArrayList<Action>();
+		for (Action a : actions){
+			if (planner.inState(a.getPreconditions(), worldState)){
+				availableActions.add(a);
+			}
+		}
+		return availableActions;
 	}
 }

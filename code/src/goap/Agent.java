@@ -1,49 +1,59 @@
 package goap;
 
 import java.util.*;
+import actions.*;
 
 public class Agent {
-	private HashSet<Action> actions;
-	private Stack<Action> remainingActions;
-	private Planner planner;
-	private HashMap<String, Object> goal;
+	private HashSet<Action> availableActions;
+	public Stack<Action> remainingActions;
+	private HashMap<String, Object> worldState;
 	
-	public Agent(HashSet<Action> actions){
-		this.actions = actions;
+	private IGoap dataProvider; //implementacia classy ktora poskytuje data o svete a pocuva feedback planovania
+	
+	private Planner planner;
+	
+	public Agent(){
 		planner = new Planner();
+		loadActions();
 	}
 	
-	/**
-	 * Ma co agent este vykonavat?
-	 */
+	public void addAction(Action a) {
+		availableActions.add(a);
+	}
+	
+	public void removeAction(Action action) {
+		availableActions.remove(action);
+	}
+	
 	public boolean hasActionPlan(){
 		return remainingActions.size() > 0;
 	}
 	
-	
 	/**
-	 * Nastavi novy ciel agentovi
-	 * @param goal je dany novy ciel.
+	 * Nastavi data providera
 	 */
-	public void setNewGoal(HashMap<String, Object> goal){
-		this.goal = goal;
+	public void setDataProvider(IGoap prov) {
+		dataProvider = prov;
+	}
+	
+	public void findNewGoal(){
+		worldState = dataProvider.getWorldState();
+		remainingActions = planner.plan(this, availableActions, worldState, dataProvider.createGoalState());
 	}
 	
 	/**
-	 * Najde cestu k dodanemu cielu pomocou @param actions.
+	 * Nacita akcie, ktore sa aktualne mozu vykonat.
 	 */
-	public Stack<Action> findNewPlan(HashSet<Action> actions, HashMap<String, Object> worldState){
-		remainingActions = planner.plan(this, actions, worldState, goal);
-		return remainingActions;
-	}
-	
-	public ArrayList<Action> getAvailableActions(HashMap<String, Object> worldState){
-		ArrayList<Action> availableActions = new ArrayList<Action>();
-		for (Action a : actions){
-			if (planner.inState(a.getPreconditions(), worldState)){
-				availableActions.add(a);
-			}
-		}
-		return availableActions;
+	public void loadActions (){
+		availableActions = new HashSet<Action>();
+		availableActions.add(new MoveToCastleFromGarden());
+		availableActions.add(new MoveToCastleFromVillage());
+		availableActions.add(new MoveToGarden());
+		availableActions.add(new MoveToJail());
+		availableActions.add(new MoveToVillageFromCastle());
+		availableActions.add(new MoveToVillageFromCave());
+		availableActions.add(new MoveToCave());
+		availableActions.add(new MoveToCastleFromJail());
+		availableActions.add(new KillDragon());
 	}
 }

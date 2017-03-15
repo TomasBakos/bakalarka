@@ -90,7 +90,7 @@ public class Planner {
 	 * Skontroluje ze vsetky polozky z 'test' su v 'state'. Ak co len jedna nesedi alebo tam nieje
 	 * vracia false.
 	 */
-	private boolean inState(HashMap<String,Object> test, HashMap<String,Object> state) {
+	public boolean inState(HashMap<String,Object> test, HashMap<String,Object> state) {
 		for (Map.Entry<String, Object> tEntry : test.entrySet()){
 			if (!state.containsKey(tEntry.getKey())){
 				return false;
@@ -106,7 +106,7 @@ public class Planner {
 	/**
 	 * Aplikuje stateChange na currentState.
 	 */
-	private HashMap<String,Object> populateState(HashMap<String,Object> currentState, HashMap<String,Object> stateChange) {
+	public HashMap<String,Object> populateState(HashMap<String,Object> currentState, HashMap<String,Object> stateChange) {
 		HashMap<String,Object> state = new HashMap<String,Object>();
 		for (Map.Entry<String, Object> entry : currentState.entrySet()){
 			state.put(entry.getKey(),entry.getValue());

@@ -8,7 +8,7 @@ public class GardenProvider extends Provider {
 	public HashMap<String, Object> getWorldState() {
 		HashMap<String, Object> worldData = new HashMap<String, Object>();
 		worldData.put("place", "garden");
-		//worldData.put("dragon", true);
+		worldData.put("dragon", true);
 		return worldData;
 	}
 

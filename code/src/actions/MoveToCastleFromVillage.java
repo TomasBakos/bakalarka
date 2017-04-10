@@ -10,25 +10,7 @@ public class MoveToCastleFromVillage extends Action {
 	}
 	
 	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isDone() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public boolean perform(Object agent) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean reqInRange() {
 		// TODO Auto-generated method stub
 		return false;
 	}

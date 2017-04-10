@@ -17,10 +17,6 @@ public class Planner {
 	public Stack<Action> plan(Object agent, HashSet<Action> availableActions, 
 			HashMap<String,Object> worldState, HashMap<String,Object> goal){
 		
-		for (Action a : availableActions) {
-			a.doReset();
-		}
-		
 		ArrayList<Node> leaves = new ArrayList<Node>();
 		Node root = new Node(null,0,worldState,null);
 		boolean success = buildGraph(root, leaves, availableActions, goal);

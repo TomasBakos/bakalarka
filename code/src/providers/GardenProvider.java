@@ -15,8 +15,7 @@ public class GardenProvider extends Provider {
 	@Override
 	public HashMap<String, Object> createGoalState() {
 		HashMap<String, Object> goal = new HashMap<String, Object>();
-		goal.put("place", "cave");
-		goal.put("dragon", false);
+		goal.put("princess", "saved");
 		return goal;
 	}
 

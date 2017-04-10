@@ -2,13 +2,13 @@ package actions;
 
 import goap.Action;
 
-public class MoveToVillageFromCave extends Action {
+public class SavePrincess extends Action {
 
-	public MoveToVillageFromCave() {
-		addPrecondition("place", "cave");
-		addEffect("place", "village");
+	public SavePrincess(){
+		addPrecondition("dragon", false);
+		addEffect("princess", "saved");
 	}
-
+	
 	@Override
 	public boolean perform(Object agent) {
 		// TODO Auto-generated method stub
@@ -17,7 +17,7 @@ public class MoveToVillageFromCave extends Action {
 
 	@Override
 	public String print() {
-		return "From Cave To Village";
+		return "Save Princess";
 	}
 
 }

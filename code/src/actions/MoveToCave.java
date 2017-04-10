@@ -8,27 +8,9 @@ public class MoveToCave extends Action {
 		addPrecondition("place", "village");
 		addEffect("place", "cave");
 	}
-	
-	@Override
-	public void reset() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isDone() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public boolean perform(Object agent) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean reqInRange() {
 		// TODO Auto-generated method stub
 		return false;
 	}

@@ -1,5 +1,7 @@
 package game;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.*;
 import actions.*;
 import goap.*;
@@ -8,24 +10,24 @@ import providers.*;
 public class GameController {
 	private Agent hero;
 	private ArrayList<Provider> providers;
-	private HashSet<Action> heroActions;
+	private HashSet<Action> actions;
 	private HashMap<String, Object> worldState;
 	private Planner planner;
 	private Provider activeProvider;
 	private Random rnd;
 	private Scanner in;
 	
-	public GameController(){
+	public GameController() throws FileNotFoundException{
 		planner = new Planner();
 		providers = new ArrayList<Provider>();
-		heroActions = new HashSet<Action>();
+		actions = new HashSet<Action>();
 		in = new Scanner(System.in);
 		rnd = new Random();
 		loadProviders();
 		loadHeroActions();
 		setRandomActiveProvider();
 		worldState = activeProvider.getWorldState();
-		hero = new Agent(heroActions);
+		hero = new Agent(actions);
 	}
 	
 	public void loadProviders(){
@@ -34,17 +36,21 @@ public class GameController {
 		providers.add(new GardenProvider());
 	}
 	
-	public void loadHeroActions (){
-		heroActions = new HashSet<Action>();
-		heroActions.add(new MoveToCastleFromGarden());
-		heroActions.add(new MoveToCastleFromVillage());
-		heroActions.add(new MoveToGarden());
-		heroActions.add(new MoveToJail());
-		heroActions.add(new MoveToVillageFromCastle());
-		heroActions.add(new MoveToVillageFromCave());
-		heroActions.add(new MoveToCave());
-		heroActions.add(new MoveToCastleFromJail());
-		heroActions.add(new KillDragon());
+	public void loadHeroActions () throws FileNotFoundException{
+		actions = new HashSet<Action>();
+		loadMoveToActions(actions);
+		actions.add(new KillDragon());
+		actions.add(new SavePrincess());
+	}
+	
+	private void loadMoveToActions(HashSet<Action> actions) throws FileNotFoundException{
+		Scanner scan = new Scanner(new FileReader("MoveToActions.txt"));
+		while (scan.hasNextLine()){
+			String line = scan.nextLine();
+			String[] fromTo = line.split(" ");
+			actions.add(new MoveToAction(fromTo[0], fromTo[1]));
+		}
+		scan.close();
 	}
 	
 	public void setRandomActiveProvider(){
@@ -56,7 +62,7 @@ public class GameController {
 	}
 	
 	public Stack<Action> findNewAgentPlan(Agent agent){
-		return agent.findNewPlan(heroActions, worldState);
+		return agent.findNewPlan(actions, worldState);
 	}
 	
 	public Agent getHero() {

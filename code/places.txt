@@ -1,0 +1,11 @@
+jail
+castle
+garden
+village
+cave
+forest
+swamp
+bridge
+plains
+mountains
+island

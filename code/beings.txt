@@ -1,0 +1,6 @@
+dragon
+king
+blacksmith
+fairy
+werewolf
+dracula

@@ -22,6 +22,8 @@ public abstract class Action {
 	 */
 	public abstract boolean perform(Object agent);
     
+	public abstract void setState(HashMap<String, Object> state);
+	
     public abstract String print();
 	
 	public void addPrecondition(String key, Object val){

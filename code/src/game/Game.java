@@ -10,7 +10,6 @@ public class Game {
 			cont = new GameController();
 			cont.play();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

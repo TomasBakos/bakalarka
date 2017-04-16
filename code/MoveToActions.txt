@@ -1,8 +1,0 @@
-garden castle
-jail castle
-village castle
-village cave
-castle garden
-castle jail
-castle village
-cave village

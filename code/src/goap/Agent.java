@@ -33,7 +33,7 @@ public class Agent {
 	 * Najde cestu k dodanemu cielu pomocou @param actions.
 	 */
 	public Stack<Action> findNewPlan(HashSet<Action> actions, HashMap<String, Object> worldState){
-		remainingActions = planner.plan(this, actions, worldState, goal);
+		remainingActions = planner.plan(actions, worldState, goal);
 		return remainingActions;
 	}
 	

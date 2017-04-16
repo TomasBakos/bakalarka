@@ -9,12 +9,14 @@ import java.util.*;
  */
 public class Planner {
 	
+	private int MAX_DEPTH = 3;
+	
 	/**
 	 * Planovanie postupnosti akcii na splnenie ciela.
 	 * Vracia null ak sa nevedel najst plan alebo zoznam
 	 * akcii, ktore musia byt vykonane aby sa splnil ciel 
 	 */
-	public Stack<Action> plan(Object agent, HashSet<Action> availableActions, 
+	public Stack<Action> plan(HashSet<Action> availableActions, 
 			HashMap<String,Object> worldState, HashMap<String,Object> goal){
 		
 		ArrayList<Node> leaves = new ArrayList<Node>();
@@ -42,7 +44,7 @@ public class Planner {
 	}
 	
 	/**
-	 * Vrati true ako sa naslo aspon jedno riesenie.
+	 * Vrati true ak sa naslo aspon jedno riesenie.
 	 * Vsetky mozne cesty su ulozene v zozname listov.
 	 * Kazdy list ma cenu a ten s najmensou cenu bude
 	 * najlepsi.
@@ -51,16 +53,20 @@ public class Planner {
 		boolean found = false;
 		
 		for (Action a : usableActions){
+			//System.out.println(a.print());
 			if (inState(a.getPreconditions(),parent.state)){
 				HashMap<String, Object> currentState = populateState(parent.state, a.getEffects());
 				Node node = new Node(parent, parent.cost+a.interest, currentState, a);
+				
+				if (parent.cost > MAX_DEPTH){
+					return false;
+				}
 				
 				if (inState(goal, currentState)){
 					leaves.add(node);
 					found = true;
 				} else {
-					HashSet<Action> subset = actionSubset(usableActions, a);
-					if (buildGraph(node, leaves, subset, goal)){
+					if (buildGraph(node, leaves, usableActions, goal)){
 						found = true;
 					}
 				}
@@ -91,7 +97,12 @@ public class Planner {
 			if (!state.containsKey(tEntry.getKey())){
 				return false;
 			} else {
-				if (!tEntry.getValue().equals(state.get(tEntry.getKey()))){
+				if (state.get(tEntry.getKey()) instanceof ArrayList<?>){
+					ArrayList<String> list = (ArrayList<String>) state.get(tEntry.getKey()); 
+					if(!list.contains((String)tEntry.getValue())){
+						return false;
+					}
+				}else if (!tEntry.getValue().equals(state.get(tEntry.getKey()))){
 					return false;
 				}
 			}

@@ -12,8 +12,9 @@ public class Kill extends Action {
 		this.killer = killer;
 		this.victim = victim;
 		addPrecondition(killer, "alive");
-		addPrecondition(victim+"place", state.get(killer+"place"));
 		addPrecondition(victim, "alive");
+		addPrecondition(victim+"place", state.get(killer+"place"));
+		addPrecondition(killer+"holds", "sword");
 		addEffect(victim, "dead");
 	}
 	

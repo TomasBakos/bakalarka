@@ -9,7 +9,7 @@ import java.util.*;
  */
 public class Planner {
 	
-	private int MAX_DEPTH = 3;
+	private int MAX_DEPTH = 5;
 	
 	/**
 	 * Planovanie postupnosti akcii na splnenie ciela.
@@ -53,7 +53,7 @@ public class Planner {
 		boolean found = false;
 		
 		for (Action a : usableActions){
-			//System.out.println(a.print());
+			a.setState(parent.state);
 			if (inState(a.getPreconditions(),parent.state)){
 				HashMap<String, Object> currentState = populateState(parent.state, a.getEffects());
 				Node node = new Node(parent, parent.cost+a.interest, currentState, a);

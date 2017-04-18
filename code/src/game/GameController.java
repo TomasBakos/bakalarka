@@ -8,10 +8,10 @@ import goap.*;
 import providers.*;
 
 public class GameController {
-	private Agent hero;
-	private ArrayList<String> beings, places;
+	private ArrayList<String> beings, places, items;
 	private ArrayList<Provider> providers;
 	private HashSet<Action> actions;
+	private HashSet<Action> heroActions;
 	private HashMap<String, Object> worldState;
 	private HashMap<String, Object> goal;
 	private Planner planner;
@@ -24,19 +24,21 @@ public class GameController {
 		worldState = new HashMap<String, Object>();
 		goal = new HashMap<String, Object>();
 		goal.put("princess", "saved");
+		goal.put("dragon", "dead");
 		providers = new ArrayList<Provider>();
 		actions = new HashSet<Action>();
+		heroActions = new HashSet<Action>();
 		beings = new ArrayList<String>();
 		places = new ArrayList<String>();
+		items = new ArrayList<String>();
 		in = new Scanner(System.in);
 		rnd = new Random();
 		loadProviders();
 		loadBeigns();
 		loadPlaces();
+		loadItems();
 		generateState();
-		generateActions();
-		//setRandomActiveProvider();
-		hero = new Agent(actions);
+		generateActions("prince");
 	}
 	
 	private void loadProviders(){
@@ -63,7 +65,44 @@ public class GameController {
 		scan.close();
 	}
 	
+	private void loadItems() throws FileNotFoundException{
+		Scanner scan = new Scanner(new FileReader("items.txt"));
+		while (scan.hasNextLine()){
+			String line = scan.nextLine();
+			items.add(line);
+		}
+		scan.close();
+	}
+	
 	private void generatePaths(){
+		for (int i = 0; i < places.size() - 1; i++) {
+			for (int j = i + 1; j < places.size(); j++) {
+				if (rnd.nextInt(3) == 0){
+					if (!worldState.containsKey("from" + places.get(i) + "to")){
+						worldState.put("from" + places.get(i) + "to", new ArrayList<String>());
+					}
+					if (!worldState.containsKey("from" + places.get(j) + "to")){
+						worldState.put("from" + places.get(j) + "to", new ArrayList<String>());
+					}
+					ArrayList<String> toListFrom = (ArrayList<String>) worldState.get("from" + places.get(i) + "to");
+					ArrayList<String> toListTo = (ArrayList<String>) worldState.get("from" + places.get(j) + "to");
+					if(places.get(i).equals("bridge") && toListFrom.size() >= 2){
+						break;
+					}
+					if(places.get(j).equals("bridge") && toListTo.size() >= 2){
+						break;
+					}
+					if(toListFrom.size() >= 3){
+						break;
+					}
+					toListFrom.add(places.get(j));
+					toListTo.add(places.get(i));
+				}
+			}
+		}
+	}
+	
+	private void generatePathsFull(){
 		for (int i = 0; i < places.size(); i++) {
 			for (int j = 0; j < places.size(); j++) {
 				if (i != j){
@@ -80,30 +119,53 @@ public class GameController {
 	private void generateBeings(){
 		worldState.put("prince", "alive");
 		worldState.put("princeplace", "castle");
+		worldState.put("princeholds", new ArrayList<String>());
 		worldState.put("princess", "alive");
 		worldState.put("princessplace", places.get(rnd.nextInt(places.size())));
+		worldState.put("princessholds", new ArrayList<String>());
 		for (int i = 0; i < beings.size(); i++) {
 			if (rnd.nextBoolean()){
 				worldState.put(beings.get(i), "alive");
 				worldState.put(beings.get(i)+"place", places.get(rnd.nextInt(places.size())));
+				worldState.put(beings.get(i)+"holds", new ArrayList<String>());
 			} else {
 				worldState.put(beings.get(i), "dead");
 				worldState.put(beings.get(i)+"place", places.get(rnd.nextInt(places.size())));
+				worldState.put(beings.get(i)+"holds", new ArrayList<String>());
 			}
 		}
+		worldState.put("dragon", "alive");
 		beings.add("prince");
 		beings.add("princess");
 	}
 	
-	private void generateState(){
-		generatePaths();
-		generateBeings();
+	private void generateItems(){
+		for (int i = 0; i < items.size(); i++) {
+			if (rnd.nextBoolean()){
+				worldState.put(items.get(i), "placed");
+				worldState.put(items.get(i)+"place", places.get(rnd.nextInt(places.size())));
+			} else {
+				worldState.put(items.get(i), "notplaced");
+				worldState.put(items.get(i)+"place", places.get(rnd.nextInt(places.size())));
+			}
+		}
+		worldState.put("sword", "placed");
 	}
 	
-	private void generateActions(){
+	private void generateState(){
+		worldState = new HashMap<String, Object>();
+		generatePaths();
+		generateBeings();
+		generateItems();
+	}
+	
+	private void generateActions(String hero){
 		//move
 		for (int i = 0; i < places.size(); i++) {
 			for (int j = 0; j < beings.size(); j++) {
+				if (beings.get(j).equals(hero)){
+					heroActions.add(new Move(beings.get(j), places.get(i), worldState));
+				}
 				actions.add(new Move(beings.get(j), places.get(i), worldState));
 			}
 		}
@@ -111,15 +173,31 @@ public class GameController {
 		for (int i = 0; i < beings.size(); i++) {
 			for (int j = 0; j < beings.size(); j++) {
 				if (i != j){
+					if (beings.get(i) == hero){
+						heroActions.add(new Kill(beings.get(i), beings.get(j), worldState));
+					}
 					actions.add(new Kill(beings.get(i), beings.get(j), worldState));
 				}
 			}
 		}
 		//save
 		for (int i = 0; i < beings.size(); i++) {
-			String being = beings.get(i);
-			if (being != "prince"){
-				actions.add(new Save(being, worldState));
+			for (int j = 0; j < beings.size(); j++) {
+				if (i != j){
+					if (beings.get(i) == hero){
+						heroActions.add(new Save(beings.get(i), beings.get(j), worldState));
+					}
+					actions.add(new Save(beings.get(i), beings.get(j), worldState));
+				}
+			}
+		}
+		//pickup
+		for (int i = 0; i < items.size(); i++) {
+			for (int j = 0; j < beings.size(); j++) {
+				if (beings.get(j).equals(hero)){
+					heroActions.add(new PickUp(beings.get(j), items.get(i), worldState));
+				}
+				actions.add(new PickUp(beings.get(j), items.get(i), worldState));
 			}
 		}
 	}
@@ -127,6 +205,17 @@ public class GameController {
 	private HashSet<Action> getAvailableActions(){
 		HashSet<Action> availableActions = new HashSet<Action>();
 		for (Action a : actions){
+			a.setState(worldState);
+			if (planner.inState(a.getPreconditions(), worldState)){
+				availableActions.add(a);
+			}
+		}
+		return availableActions;
+	}
+	
+	private HashSet<Action> getAvailableHeroActions(){
+		HashSet<Action> availableActions = new HashSet<Action>();
+		for (Action a : heroActions){
 			a.setState(worldState);
 			if (planner.inState(a.getPreconditions(), worldState)){
 				availableActions.add(a);
@@ -151,39 +240,45 @@ public class GameController {
 		return agent.findNewPlan(actions, worldState);
 	}
 	
-	public Agent getHero() {
-		return hero;
-	}
-	
-	public void printAvailableHeroActions(){
-		
-	}
-	
 	private void printState(HashMap<String, Object> state){
 		for (Map.Entry<String, Object> tEntry : state.entrySet()){
 			System.out.println(tEntry.getKey() + " ukazuje na " + tEntry.getValue());
 		}
 	}
 	
+	private void printWorldStatePaths(){
+		for (Map.Entry<String, Object> tEntry : worldState.entrySet()){
+			if (tEntry.getKey().contains("from")){
+				System.out.println(tEntry.getKey() + " ukazuje na " + tEntry.getValue());
+			}
+		}
+	}
+	
 	public void play(){
 		System.out.println("STARTING GAME!!!");
+		printWorldStatePaths();
 		//printState(worldState);
 		HashMap<String,Object> planningState = new HashMap<String, Object>(worldState);
-		Stack<Action> plan = planner.plan(actions, planningState, goal);
+		Stack<Action> plan = planner.plan(heroActions, planningState, goal);
+		while(plan == null){
+			generateState();
+			planningState = new HashMap<String, Object>(worldState);
+			plan = planner.plan(heroActions, planningState, goal);
+		}
 		while (!plan.isEmpty()){
 			System.out.print(plan.pop().print() + ", ");
 		}
 		System.out.println();
-		ArrayList<Action> heroActions = new ArrayList<Action>();
+		ArrayList<Action> availableActions = new ArrayList<Action>();
 		while (!checkGoal()){
-			heroActions = new ArrayList<Action>(getAvailableActions());
-			for (int i = 0; i < heroActions.size(); i++) {
-				System.out.print(i + ": " + heroActions.get(i).print() + ", ");
+			availableActions = new ArrayList<Action>(getAvailableHeroActions());
+			for (int i = 0; i < availableActions.size(); i++) {
+				System.out.print(i + ": " + availableActions.get(i).print() + ", ");
 			}
 			System.out.println();
 			int option = in.nextInt();
-			if (option > -1 && option < heroActions.size()){
-				worldState = planner.populateState(worldState, heroActions.get(option).getEffects());
+			if (option > -1 && option < availableActions.size()){
+				worldState = planner.populateState(worldState, availableActions.get(option).getEffects());
 			}
 			/*
 			if (heroActions.get(option).equals(stack.peek())){

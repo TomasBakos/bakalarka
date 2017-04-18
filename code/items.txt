@@ -1,0 +1,5 @@
+rock
+sword
+axe
+key
+bow

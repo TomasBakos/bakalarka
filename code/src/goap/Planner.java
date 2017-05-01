@@ -9,7 +9,12 @@ import java.util.*;
  */
 public class Planner {
 	
-	private int MAX_DEPTH = 5;
+	private int MAX_DEPTH = 10;
+	boolean aStar;
+	
+	public Planner(boolean aStar){
+		this.aStar = aStar;
+	}
 	
 	/**
 	 * Planovanie postupnosti akcii na splnenie ciela.
@@ -19,15 +24,23 @@ public class Planner {
 	public Stack<Action> plan(HashSet<Action> availableActions, 
 			HashMap<String,Object> worldState, HashMap<String,Object> goal){
 		
+		HashSet<Node> visited = new HashSet<Node>();
+		PriorityQueue<Node> queue = new PriorityQueue<Node>();
 		ArrayList<Node> leaves = new ArrayList<Node>();
-		Node root = new Node(null,0,worldState,null);
-		boolean success = buildGraph(root, leaves, availableActions, goal);
-		
-		if (!success){
-			return null;
+		Node root = new Node(null, 0, worldState, null, 0, countUnsatisfiedGoals(goal, worldState));
+		boolean success = false;
+		if (aStar){
+			queue.add(root);
+			success = aStarSearch(queue, visited, leaves, availableActions, goal);
 		} else {
+			success = buildGraph(root, leaves, availableActions, goal);
+		}
+		
+		if (success){
 			Node best = leaves.get(0);
 			for (Node n : leaves){
+				//System.out.println("Nodes search");
+				//System.out.println(n.cost);
 				if (best.cost > n.cost){
 					best = n;
 				}
@@ -41,6 +54,7 @@ public class Planner {
 			}
 			return stack;
 		}
+		return null;
 	}
 	
 	/**
@@ -56,9 +70,9 @@ public class Planner {
 			a.setState(parent.state);
 			if (inState(a.getPreconditions(),parent.state)){
 				HashMap<String, Object> currentState = populateState(parent.state, a.getEffects());
-				Node node = new Node(parent, parent.cost+a.interest, currentState, a);
+				Node node = new Node(parent, parent.cost+a.interest, currentState, a, parent.level + 1, 0);
 				
-				if (parent.cost > MAX_DEPTH){
+				if (parent.level > MAX_DEPTH){
 					return false;
 				}
 				
@@ -73,6 +87,68 @@ public class Planner {
 			}
 		}
 		return found;
+	}
+	
+	private boolean aStarSearch(PriorityQueue<Node> queue, HashSet<Node> visited, List<Node> leaves, HashSet<Action> usableActions, HashMap<String, Object> goal){
+		//TODO doladit nechodi vzdy neviem preco
+		boolean found = false;
+		while (!queue.isEmpty()){
+			Node parent = queue.poll();
+			visited.add(parent);
+			
+			if (parent.level > MAX_DEPTH){
+				return false;
+			}
+
+			if (inState(goal, parent.state)){
+				leaves.add(parent);
+				return true;	
+			}
+
+			for (Action a : usableActions){
+				a.setState(parent.state);
+				if (inState(a.getPreconditions(),parent.state)){
+					HashMap<String, Object> currentState = populateState(parent.state, a.getEffects());
+					Node node = new Node(parent, parent.cost+a.interest, currentState, a, parent.level + 1, countUnsatisfiedGoals(goal, currentState));
+					
+					boolean add = true;
+					for (Node n : visited){
+						if (inState(n.state,node.state)){
+							if (n.compareTo(node) > 0){
+								visited.remove(n);
+							} else { 
+								add = false;
+							}
+						}
+					}
+					if (add){
+						queue.add(node);
+					}
+				}
+			}
+
+		}
+		
+		return found;
+	}
+	
+	private int countUnsatisfiedGoals(HashMap<String, Object> goal, HashMap<String, Object> state){
+		int result = 0;
+		for (Map.Entry<String, Object> tEntry : goal.entrySet()){
+			if (!state.containsKey(tEntry.getKey())){
+				result++;
+			} else {
+				if (state.get(tEntry.getKey()) instanceof ArrayList<?>){
+					ArrayList<String> list = (ArrayList<String>) state.get(tEntry.getKey());
+					if(!list.contains((String)tEntry.getValue())){
+						result++;
+					}
+				}else if (!tEntry.getValue().equals(state.get(tEntry.getKey()))){
+					result++;
+				}
+			}
+		}
+		return result;
 	}
 	
 	/**
@@ -98,13 +174,28 @@ public class Planner {
 				return false;
 			} else {
 				if (state.get(tEntry.getKey()) instanceof ArrayList<?>){
-					ArrayList<String> list = (ArrayList<String>) state.get(tEntry.getKey()); 
-					if(!list.contains((String)tEntry.getValue())){
-						return false;
+					ArrayList<String> list = (ArrayList<String>) state.get(tEntry.getKey());
+					if (tEntry.getValue() instanceof ArrayList<?>){
+						if (!checkArrays(list, (ArrayList<String>)tEntry.getValue())){
+							return false;
+						}
+					} else {
+						if(!list.contains((String)tEntry.getValue())){
+							return false;
+						}
 					}
 				}else if (!tEntry.getValue().equals(state.get(tEntry.getKey()))){
 					return false;
 				}
+			}
+		}
+		return true;
+	}
+	
+	private boolean checkArrays(ArrayList<String> array1, ArrayList<String> array2){
+		for (String s : array2){
+			if (!array1.contains(s)){
+				return false;
 			}
 		}
 		return true;
@@ -130,17 +221,32 @@ public class Planner {
 		return state;
 	}
 	
-	private class Node {
+	private class Node implements Comparable<Node>{
 		public Node parent;
-		public float cost;
+		public int cost;
+		public int notSolved;
 		public HashMap<String,Object> state;
 		public Action action;
+		public int level;
 
-		public Node(Node parent, float cost, HashMap<String,Object> state, Action action) {
+		public Node(Node parent, int cost, HashMap<String,Object> state, Action action, int level, int notSolved) {
 			this.parent = parent;
 			this.cost = cost;
 			this.state = state;
 			this.action = action;
+			this.level = level;
+			this.notSolved = notSolved;
+		}
+
+		@Override
+		public int compareTo(Node node) {
+			if (cost + notSolved < node.cost + node.notSolved){
+				return -1;
+			} else if (cost + notSolved == node.cost + node.notSolved){
+				return 0;
+			} else {
+				return 1;
+			}
 		}
 	}
 }

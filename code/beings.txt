@@ -1,6 +1,7 @@
+prince
+princess
 dragon
-king
-blacksmith
 fairy
 werewolf
 dracula
+boar

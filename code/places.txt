@@ -9,3 +9,6 @@ bridge
 plains
 mountains
 island
+marketplace
+volcano
+beach

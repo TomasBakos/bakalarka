@@ -10,7 +10,7 @@ public class Agent {
 	
 	public Agent(HashSet<Action> actions){
 		this.actions = actions;
-		planner = new Planner();
+		planner = new Planner(false);
 	}
 	
 	/**

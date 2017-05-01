@@ -1,5 +1,6 @@
-rock
-sword
-axe
-key
-bow
+magic sword
+rusty axe
+gold key
+elven bow
+hard rock
+silver dagger

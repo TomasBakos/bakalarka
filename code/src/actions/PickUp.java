@@ -17,6 +17,7 @@ public class PickUp extends Action {
 		addPrecondition(object, "placed");
 		ArrayList<String> toList = new ArrayList<String>((ArrayList<String>)state.get(being+"holds"));
 		toList.add(object);
+		addEffect(object, "notplaced");
 		addEffect(being+"holds", toList);
 		//toList.remove(object);
 	}

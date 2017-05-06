@@ -105,7 +105,7 @@ public class GameView {
 		System.out.println("You have " + worldState.get("coins") + " coins");
 		System.out.println("What do you do?");
 		for (int i = 0; i < actions.size(); i++) {
-			System.out.print(i + ": " + actions.get(i).print() + ", ");
+			System.out.print((i+1) + ": " + actions.get(i).print() + ", ");
 		}
 	}
 	

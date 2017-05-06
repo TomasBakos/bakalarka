@@ -411,11 +411,13 @@ public class GameController {
 		for (Action a : aStarPlan){
 			System.out.print(a.print() + ", ");
 		}
+		
 		System.out.println();
 		System.out.println();
 		System.out.println();
 		System.out.println();
 		System.out.println();
+		
 		view = new GameView(friends, monsters, goal);
 		view.printStartGame(worldState);
 		String key = in.nextLine();
@@ -426,7 +428,7 @@ public class GameController {
 			view.printTurn(worldState, availableActions);
 			
 			System.out.println();
-			int option = in.nextInt();
+			int option = in.nextInt() - 1;
 			if (option > -1 && option < availableActions.size()){
 				worldState = planner.populateState(worldState, availableActions.get(option).getEffects());
 			}

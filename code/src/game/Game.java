@@ -9,6 +9,7 @@ public class Game {
 		try {
 			cont = new GameController();
 			cont.play();
+			//cont.testing();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}

@@ -11,9 +11,12 @@ public class Save extends Action {
 	public Save(String savior, String victim, HashMap<String, Object> state){
 		this.savior = savior;
 		this.victim = victim;
+		
 		addPrecondition(savior, "alive");
 		addPrecondition(victim, "alive");
 		addPrecondition(victim+"place", state.get(savior+"place"));
+		addPrecondition("coins", 4);
+		
 		addEffect(victim, "saved");
 	}
 	

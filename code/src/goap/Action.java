@@ -7,7 +7,7 @@ public abstract class Action {
 	private HashMap<String, Object> preconditions;
 	private HashMap<String, Object> effects;
 	
-	public int interest = 1;
+	public int interestCost = 1;
 	
 	public Action(){
 		preconditions = new HashMap<String, Object>();

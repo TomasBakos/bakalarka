@@ -12,8 +12,11 @@ public class Move extends Action {
 		this.who = who;
 		this.to = to;
 		this.state = state;
+		this.interestCost = 3;
+		
 		addPrecondition(who, "alive");
 		addPrecondition("from" + state.get(who+"place") + "to", to);
+		
 		addEffect(who+"place", to);
 	}
 

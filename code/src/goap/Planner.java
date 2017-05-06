@@ -1,6 +1,7 @@
 package goap;
 
 import java.util.*;
+import actions.*;
 
 /**
  * Planuje ktore akcie mozu byt splnene aby
@@ -9,7 +10,7 @@ import java.util.*;
  */
 public class Planner {
 	
-	private int MAX_DEPTH = 10;
+	private int MAX_DEPTH = 50;
 	boolean aStar;
 	
 	public Planner(boolean aStar){
@@ -21,15 +22,15 @@ public class Planner {
 	 * Vracia null ak sa nevedel najst plan alebo zoznam
 	 * akcii, ktore musia byt vykonane aby sa splnil ciel 
 	 */
-	public Stack<Action> plan(HashSet<Action> availableActions, 
-			HashMap<String,Object> worldState, HashMap<String,Object> goal){
+	public ArrayList<Action> plan(HashSet<Action> availableActions, HashMap<String,Object> worldState, HashMap<String,Object> goal){
 		
-		HashSet<Node> visited = new HashSet<Node>();
-		PriorityQueue<Node> queue = new PriorityQueue<Node>();
+		
 		ArrayList<Node> leaves = new ArrayList<Node>();
 		Node root = new Node(null, 0, worldState, null, 0, countUnsatisfiedGoals(goal, worldState));
 		boolean success = false;
 		if (aStar){
+			HashSet<Node> visited = new HashSet<Node>();
+			PriorityQueue<Node> queue = new PriorityQueue<Node>();
 			queue.add(root);
 			success = aStarSearch(queue, visited, leaves, availableActions, goal);
 		} else {
@@ -39,20 +40,19 @@ public class Planner {
 		if (success){
 			Node best = leaves.get(0);
 			for (Node n : leaves){
-				//System.out.println("Nodes search");
-				//System.out.println(n.cost);
 				if (best.cost > n.cost){
 					best = n;
 				}
 			}
-			Stack<Action> stack = new Stack<Action>();
-			while (best != null){
-				if (best.action != null){
-					stack.push(best.action);
-				}
+			ArrayList<Action> plan = new ArrayList<Action>();
+			while (best.parent != null){
+				plan.add(best.action);
 				best = best.parent;
 			}
-			return stack;
+			Collections.reverse(plan);
+			//if (isInteresting(plan)){
+				return plan;
+			//}
 		}
 		return null;
 	}
@@ -65,12 +65,11 @@ public class Planner {
 	 */
 	private boolean buildGraph (Node parent, List<Node> leaves, HashSet<Action> usableActions, HashMap<String, Object> goal){
 		boolean found = false;
-		
 		for (Action a : usableActions){
 			a.setState(parent.state);
 			if (inState(a.getPreconditions(),parent.state)){
 				HashMap<String, Object> currentState = populateState(parent.state, a.getEffects());
-				Node node = new Node(parent, parent.cost+a.interest, currentState, a, parent.level + 1, 0);
+				Node node = new Node(parent, parent.cost+a.interestCost, currentState, a, parent.level + 1, 0);
 				
 				if (parent.level > MAX_DEPTH){
 					return false;
@@ -90,15 +89,13 @@ public class Planner {
 	}
 	
 	private boolean aStarSearch(PriorityQueue<Node> queue, HashSet<Node> visited, List<Node> leaves, HashSet<Action> usableActions, HashMap<String, Object> goal){
-		//TODO doladit nechodi vzdy neviem preco
 		boolean found = false;
 		while (!queue.isEmpty()){
 			Node parent = queue.poll();
 			visited.add(parent);
-			
-			if (parent.level > MAX_DEPTH){
+			/*if (parent.level > MAX_DEPTH + 1){
 				return false;
-			}
+			}*/
 
 			if (inState(goal, parent.state)){
 				leaves.add(parent);
@@ -109,20 +106,35 @@ public class Planner {
 				a.setState(parent.state);
 				if (inState(a.getPreconditions(),parent.state)){
 					HashMap<String, Object> currentState = populateState(parent.state, a.getEffects());
-					Node node = new Node(parent, parent.cost+a.interest, currentState, a, parent.level + 1, countUnsatisfiedGoals(goal, currentState));
+					Node node = new Node(parent, parent.cost+a.interestCost, currentState, a, parent.level + 1, countUnsatisfiedGoals(goal, currentState));
 					
 					boolean add = true;
 					for (Node n : visited){
 						if (inState(n.state,node.state)){
-							if (n.compareTo(node) > 0){
-								visited.remove(n);
-							} else { 
-								add = false;
-							}
+							add = false;
 						}
 					}
+					
+					boolean remove = false;
+					boolean noAdd = false;
+					Node toRemove = null;
 					if (add){
-						queue.add(node);
+						for (Node n : queue){
+							if (inState(n.state, node.state)){
+								if (n.compareTo(node) > 0){
+									remove = true;
+									toRemove = n;
+								} else {
+									noAdd = true;
+								}
+							}
+						}
+						if (remove){
+							queue.remove(toRemove);
+						}
+						if (!noAdd){
+							queue.add(node);
+						}
 					}
 				}
 			}
@@ -174,13 +186,13 @@ public class Planner {
 				return false;
 			} else {
 				if (state.get(tEntry.getKey()) instanceof ArrayList<?>){
-					ArrayList<String> list = (ArrayList<String>) state.get(tEntry.getKey());
+					ArrayList<String> stateList = (ArrayList<String>) state.get(tEntry.getKey());
 					if (tEntry.getValue() instanceof ArrayList<?>){
-						if (!checkArrays(list, (ArrayList<String>)tEntry.getValue())){
+						if (!checkArrays(stateList, (ArrayList<String>)tEntry.getValue())){
 							return false;
 						}
 					} else {
-						if(!list.contains((String)tEntry.getValue())){
+						if(!stateList.contains((String)tEntry.getValue())){
 							return false;
 						}
 					}
@@ -192,7 +204,13 @@ public class Planner {
 		return true;
 	}
 	
-	private boolean checkArrays(ArrayList<String> array1, ArrayList<String> array2){
+	//TODO: prerobit na Set-y nech sa to ta rychlo porovnat
+	private boolean checkArrays(ArrayList<String> array1, ArrayList<String> array2){;
+		for (String s : array1){
+			if (!array2.contains(s)){
+				return false;
+			}
+		}
 		for (String s : array2){
 			if (!array1.contains(s)){
 				return false;
@@ -219,6 +237,18 @@ public class Planner {
 		}
 		
 		return state;
+	}
+	
+	private boolean isInteresting(ArrayList<Action> plan){
+		for (int i = 0; i < plan.size(); i++) {
+			if (plan.get(i) instanceof PickUp){
+				if (plan.get(i+1) instanceof Kill || plan.get(i+1) instanceof Trade){
+					return false;
+				}
+			}
+		}	
+		
+		return true;
 	}
 	
 	private class Node implements Comparable<Node>{

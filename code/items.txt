@@ -4,3 +4,7 @@ gold key
 elven bow
 hard rock
 silver dagger
+suspicious coin
+fairy dust
+bones
+mystery box

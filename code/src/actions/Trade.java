@@ -26,7 +26,11 @@ public class Trade extends Action {
 		int coins = (int) state.get("coins");
 		addEffect("coins", coins+1);
 	}
-
+	
+	public String getTrader(){
+		return trader;
+	}
+	
 	@Override
 	public String print() {
 		return hero + " trades " + item + " with " + trader;

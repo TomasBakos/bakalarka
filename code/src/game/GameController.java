@@ -7,7 +7,8 @@ import actions.*;
 import goap.*;
 
 public class GameController {
-	private final int HUB_COUNT = 4;
+	private final int HUB_COUNT = 2;
+	private GameView view;
 	private ArrayList<ArrayList<String>> hubs;
 	private ArrayList<String> beings, friends, monsters, places, items, placedItems;
 	private HashSet<Action> actions;
@@ -21,8 +22,6 @@ public class GameController {
 	public GameController() throws FileNotFoundException{
 		planner = new Planner(false);
 		aStarPlanner = new Planner(true);
-		goal = new HashMap<String, Object>();
-		goal.put("princess", "saved");
 		rnd = new Random();
 		loadEntities();
 		generateState();
@@ -123,6 +122,7 @@ public class GameController {
 	
 	private void generateFriends(){
 		ArrayList<String> friendsCopy = new ArrayList<String>(friends);
+		ArrayList<String> placesCopy = new ArrayList<String>(places);
 		for (int i = 0; i < hubs.size(); i++) {
 			String friend = friendsCopy.get(rnd.nextInt(friendsCopy.size()));
 			worldState.put(friend, "alive");
@@ -131,13 +131,16 @@ public class GameController {
 			worldState.put(friend+"wants", friendWants);
 			goal.put(friend+"wants", "");
 			
-			String friendPlace = places.get(rnd.nextInt(places.size()));
+			String friendPlace = placesCopy.get(rnd.nextInt(placesCopy.size()));
 			worldState.put(friend+"place", friendPlace);
+			placesCopy.remove(friendPlace);
 			
-			String itemPlace = places.get(rnd.nextInt(places.size()));
+			String itemPlace = placesCopy.get(rnd.nextInt(placesCopy.size()));
 			worldState.put(friendWants+"place", itemPlace);
+			placesCopy.remove(itemPlace);
 			
 			worldState.put(friend+"holds", new ArrayList<String>());
+			
 			beings.add(friend);
 			
 			placedItems.remove(friendWants);
@@ -227,6 +230,7 @@ public class GameController {
 		worldState = new HashMap<String, Object>();
 		goal = new HashMap<String, Object>();
 		goal.put("princess", "saved");
+		goal.put("coins", HUB_COUNT);
 		generateHubs();
 		generatePaths();
 		generateItems();
@@ -408,25 +412,27 @@ public class GameController {
 			System.out.print(a.print() + ", ");
 		}
 		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		view = new GameView(friends, monsters, goal);
+		view.printStartGame(worldState);
+		String key = in.nextLine();
 		
 		ArrayList<Action> availableActions = new ArrayList<Action>();
 		while (!checkGoal()){
 			availableActions = new ArrayList<Action>(getAvailableHeroActions());
-			for (int i = 0; i < availableActions.size(); i++) {
-				System.out.print(i + ": " + availableActions.get(i).print() + ", ");
-			}
+			view.printTurn(worldState, availableActions);
+			
 			System.out.println();
 			int option = in.nextInt();
 			if (option > -1 && option < availableActions.size()){
 				worldState = planner.populateState(worldState, availableActions.get(option).getEffects());
-				System.out.println("Invenroty: " + worldState.get("princeholds"));
 			}
-			/*
-			if (heroActions.get(option).equals(stack.peek())){
-				System.out.println("VYPISUJEM AKCIU ZO STACKU: " + stack.pop().print());
-			}*/
 		}
-		System.out.println("Yaaaaaay!!!");
+		view.printEnding();
+		key = in.nextLine();
 	}
 	
 	

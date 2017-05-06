@@ -19,7 +19,11 @@ public class Move extends Action {
 		
 		addEffect(who+"place", to);
 	}
-
+	
+	public String getTo(){
+		return to;
+	}
+	
 	@Override
 	public String print() {
 		return "Move " + who + " To " + to;

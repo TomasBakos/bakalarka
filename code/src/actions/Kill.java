@@ -36,6 +36,10 @@ public class Kill extends Action {
 		addEffect("from" + state.get(victim+"blocks") + "to", blocksList);
 	}
 
+	public String getVictim(){
+		return victim;
+	}
+	
 	@Override
 	public String print() {
 		return killer + " kills " + victim + " with " + item;

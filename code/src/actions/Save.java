@@ -15,11 +15,15 @@ public class Save extends Action {
 		addPrecondition(savior, "alive");
 		addPrecondition(victim, "alive");
 		addPrecondition(victim+"place", state.get(savior+"place"));
-		addPrecondition("coins", 4);
+		addPrecondition("coins", 2);
 		
 		addEffect(victim, "saved");
 	}
 
+	public String getVictim(){
+		return victim;
+	}
+	
 	@Override
 	public String print() {
 		return savior + " saved " + victim;

@@ -24,6 +24,10 @@ public class PickUp extends Action {
 		addEffect(being+"holds", toList);
 	}
 	
+	public String getObject(){
+		return object;
+	}
+	
 	@Override
 	public String print() {
 		return being + " picks up " + object;

@@ -13,14 +13,6 @@ public abstract class Action {
 		preconditions = new HashMap<String, Object>();
 		effects = new HashMap<String, Object>();
 	}
-	
-	/**
-	 * Vykona danu akciu.
-	 * Vrati true ak sa akcia vykonala uspesne alebo false
-	 * ak nieco zlyhalo. V tomto pripade by akcia mala byt
-	 * odstranena z fronty a ciel je nedosiahnutelny.
-	 */
-	public abstract boolean perform(Object agent);
     
 	public abstract void setState(HashMap<String, Object> state);
 	

@@ -23,10 +23,7 @@ public class GameController {
 		aStarPlanner = new Planner(true);
 		goal = new HashMap<String, Object>();
 		goal.put("princess", "saved");
-		beings = new ArrayList<String>();
 		rnd = new Random();
-		beings.add("prince");
-		beings.add("princess");
 		loadEntities();
 		generateState();
 		generateActions("prince");
@@ -153,6 +150,9 @@ public class GameController {
 	}
 	
 	private void generateBeings(){
+		beings = new ArrayList<String>();
+		beings.add("prince");
+		beings.add("princess");
 		worldState.put("prince", "alive");
 		worldState.put("princeplace", hubs.get(0).get(rnd.nextInt(hubs.get(0).size())));
 		worldState.put("princeholds", new ArrayList<String>());
@@ -233,10 +233,7 @@ public class GameController {
 		generateBeings();
 	}
 	
-	private void generateActions(String hero){
-		heroActions = new HashSet<Action>();
-		actions = new HashSet<Action>();
-		//move
+	private void generateMoveActions(String hero){
 		for (int i = 0; i < places.size(); i++) {
 			for (int j = 0; j < beings.size(); j++) {
 				if (beings.get(j).equals(hero)){
@@ -245,7 +242,9 @@ public class GameController {
 				actions.add(new Move(beings.get(j), places.get(i), worldState));
 			}
 		}
-		//kill
+	}
+	
+	private void generateKillActions(String hero){
 		for (int i = 0; i < beings.size(); i++) {
 			for (int j = 0; j < monsters.size(); j++) {
 				if (i != j){
@@ -256,7 +255,9 @@ public class GameController {
 				}
 			}
 		}
-		//save
+	}
+	
+	private void generateSaveActions(String hero){
 		for (int i = 0; i < beings.size(); i++) {
 			for (int j = 0; j < beings.size(); j++) {
 				if (i != j){
@@ -267,7 +268,9 @@ public class GameController {
 				}
 			}
 		}
-		//pickup
+	}
+	
+	private void generatePickUpActions(String hero){
 		for (int i = 0; i < items.size(); i++) {
 			for (int j = 0; j < beings.size(); j++) {
 				if (beings.get(j).equals(hero)){
@@ -276,7 +279,9 @@ public class GameController {
 				actions.add(new PickUp(beings.get(j), items.get(i), worldState));
 			}
 		}
-		//trade
+	}
+	
+	private void generateTradeActions(String hero){
 		for (int i = 0; i < beings.size(); i++) {
 			for (int j = 0; j < friends.size(); j++) {
 				if (i != j){
@@ -287,6 +292,16 @@ public class GameController {
 				}
 			}
 		}
+	}
+	
+	private void generateActions(String hero){
+		heroActions = new HashSet<Action>();
+		actions = new HashSet<Action>();
+		generateMoveActions(hero);
+		generateKillActions(hero);
+		generateSaveActions(hero);
+		generatePickUpActions(hero);
+		generateTradeActions(hero);
 	}
 	
 	private HashSet<Action> getAvailableActions(){

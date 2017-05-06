@@ -28,12 +28,6 @@ public class Trade extends Action {
 	}
 
 	@Override
-	public boolean perform(Object agent) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public String print() {
 		return hero + " trades " + item + " with " + trader;
 	}

@@ -35,12 +35,6 @@ public class Kill extends Action {
 		blocksList.add((String) state.get(victim+"place"));
 		addEffect("from" + state.get(victim+"blocks") + "to", blocksList);
 	}
-	
-	@Override
-	public boolean perform(Object agent) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public String print() {

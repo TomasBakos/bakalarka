@@ -25,12 +25,6 @@ public class PickUp extends Action {
 	}
 	
 	@Override
-	public boolean perform(Object agent) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public String print() {
 		return being + " picks up " + object;
 	}

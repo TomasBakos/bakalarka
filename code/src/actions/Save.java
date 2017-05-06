@@ -19,12 +19,6 @@ public class Save extends Action {
 		
 		addEffect(victim, "saved");
 	}
-	
-	@Override
-	public boolean perform(Object agent) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public String print() {

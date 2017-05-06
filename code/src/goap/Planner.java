@@ -93,9 +93,6 @@ public class Planner {
 		while (!queue.isEmpty()){
 			Node parent = queue.poll();
 			visited.add(parent);
-			/*if (parent.level > MAX_DEPTH + 1){
-				return false;
-			}*/
 
 			if (inState(goal, parent.state)){
 				leaves.add(parent);
@@ -161,19 +158,6 @@ public class Planner {
 			}
 		}
 		return result;
-	}
-	
-	/**
-	 * Vytvori podmnozinu akcii bez akcie removeMe. Vytvara novu mnozinu.
-	 */
-	private HashSet<Action> actionSubset(HashSet<Action> actions, Action removeMe) {
-		HashSet<Action> subset = new HashSet<Action>();
-		for (Action a : actions){
-			if(!a.equals(removeMe)){
-				subset.add(a);
-			}
-		}
-		return subset;
 	}
 	
 	/**

@@ -11,6 +11,7 @@ public class Game {
 			cont.play();
 			//cont.testing();
 		} catch (FileNotFoundException e) {
+			System.out.println("Some of the game files are missing");
 			e.printStackTrace();
 		}
 	}

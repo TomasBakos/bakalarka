@@ -15,7 +15,7 @@ public class Save extends Action {
 		addPrecondition(savior, "alive");
 		addPrecondition(victim, "alive");
 		addPrecondition(victim+"place", state.get(savior+"place"));
-		addPrecondition("coins", 2);
+		addPrecondition("coins", 3);
 		
 		addEffect(victim, "saved");
 	}

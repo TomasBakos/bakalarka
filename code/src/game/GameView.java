@@ -8,11 +8,12 @@ import actions.*;
 public class GameView {
 	
 	private HashMap<String, Object> goal;
-	private ArrayList<String> friends, monsters;
+	private ArrayList<String> friends, monsters, riddlers;
 	
-	public GameView(ArrayList<String> friends, ArrayList<String> monsters, HashMap<String, Object> goal){
+	public GameView(ArrayList<String> friends, ArrayList<String> monsters, ArrayList<String> riddlers, HashMap<String, Object> goal){
 		this.friends = friends;
 		this.monsters = monsters;
+		this.riddlers = riddlers;
 		this.goal = goal;
 	}
 	
@@ -39,6 +40,7 @@ public class GameView {
 		ArrayList<String> actionItems = new ArrayList<String>();
 		ArrayList<String> actionTraders = new ArrayList<String>();
 		ArrayList<String> actionMonsters = new ArrayList<String>();
+		ArrayList<String> actionRiddlers = new ArrayList<String>();
 		ArrayList<String> actionSaveVictims = new ArrayList<String>();
 		for (Action a : actions){
 			if (a instanceof Move){
@@ -53,6 +55,9 @@ public class GameView {
 				String entity = entry.getKey().substring(0, entry.getKey().length() - 5);
 				if (monsters.contains(entity)){
 					actionMonsters.add(entity);
+				}
+				if (riddlers.contains(entity)){
+					actionRiddlers.add(entity);
 				}
 				if (friends.contains(entity)){
 					actionTraders.add(entity);
@@ -87,6 +92,12 @@ public class GameView {
 			String vulnerability = (String) worldState.get(actionMonsters.get(0)+"vuln");
 			System.out.println("Additionally you see path to " + blockedPlace + ", but it is blocked by " + monster);
 			System.out.println("The monster seems to be vulnerable to " + vulnerability);
+		}
+		if (actionRiddlers.size() > 0 && worldState.get(actionRiddlers.get(0)).equals("alive")){
+			String riddler = actionRiddlers.get(0);
+			String blockedPlace = (String) worldState.get(actionRiddlers.get(0)+"blocks");
+			System.out.println("Additionally you see path to " + blockedPlace + ", but it is blocked by " + riddler);
+			System.out.println("It seems you need to solve a riddle before " + riddler + " will let you through");
 		}
 		if (actionTraders.size() > 0 && !worldState.get(actionTraders.get(0)+"wants").equals("")){
 			String trader = actionTraders.get(0);

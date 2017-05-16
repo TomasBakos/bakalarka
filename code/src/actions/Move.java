@@ -1,23 +1,40 @@
 package actions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import goap.Action;
 
 public class Move extends Action {
 	
 	private String who,to;
-	private HashMap<String, Object> state;
 	
-	public Move(String who, String to, HashMap<String, Object> state){
+	public Move(String who, String to){
 		this.who = who;
 		this.to = to;
-		this.state = state;
 		this.interestCost = 3;
-		
-		addPrecondition(who, "alive");
-		addPrecondition("from" + state.get(who+"place") + "to", to);
-		
-		addEffect(who+"place", to);
+	}
+	
+	@Override
+	public boolean checkPreconditions(HashMap<String, Object> state) {
+		boolean preconditions = true;
+		if (!state.get(who).equals("alive")) {
+			preconditions = false;
+		}
+		ArrayList<String> placesTo = new ArrayList<String>();
+		if (state.get("from" + state.get(who+"place") + "to") != null){
+			placesTo = new ArrayList<>((ArrayList<String>) state.get("from" + state.get(who+"place") + "to"));
+		}
+		if (preconditions && !placesTo.contains(to)){
+			preconditions = false;
+		}
+		return preconditions;
+	}
+
+	@Override
+	public HashMap<String, Object> execute(HashMap<String, Object> state) {
+		HashMap<String, Object> newState = new HashMap<String, Object>(state);
+		newState.put(who+"place", to);
+		return newState;
 	}
 	
 	public String getTo(){
@@ -29,10 +46,4 @@ public class Move extends Action {
 		return "Move " + who + " To " + to;
 	}
 	
-	@Override
-	public void setState(HashMap<String, Object> state){
-		removePrecondition("from" + this.state.get(who+"place") + "to");
-		this.state = state;
-		addPrecondition("from" + state.get(who+"place") + "to", to);
-	}
 }

@@ -4,27 +4,51 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import goap.Action;
-//TODO: mozno prerobit na akciu bez itemu
+
 public class Trade extends Action {
 	
-	private String hero, trader, item;
+	private String hero, trader;
 	
-	public Trade(String hero, String trader, HashMap<String, Object> state){
+	public Trade(String hero, String trader){
 		this.hero = hero;
 		this.trader = trader;
-		item = (String) state.get(trader+"wants");
+	}
+	
+	@Override
+	public boolean checkPreconditions(HashMap<String, Object> state) {
+		boolean preconditions = true;
+		if (!state.get(hero).equals("alive")) {
+			preconditions = false;
+		}
+		if (preconditions && !state.get(trader).equals("alive")){
+			preconditions = false;
+		}
+		if (preconditions && !state.get(trader+"place").equals(state.get(hero+"place"))){
+			preconditions = false;
+		}
+		ArrayList<String> inventory = (ArrayList<String>)state.get(hero+"holds");
+		if (preconditions && !inventory.contains(state.get(trader+"wants"))){
+			preconditions = false;
+		}
+		return preconditions;
+	}
+
+	@Override
+	public HashMap<String, Object> execute(HashMap<String, Object> state) {
+		HashMap<String, Object> newState = new HashMap<String, Object>(state);
+		newState.put(trader+"wants", "");
 		
-		addPrecondition(hero, "alive");
-		addPrecondition(trader, "alive");
-		addPrecondition(trader+"place", state.get(hero+"place"));
-		addPrecondition(hero+"holds", state.get(trader+"wants"));
-		
-		addEffect(trader+"wants", "");
-		ArrayList<String> itemList = new ArrayList<String>((ArrayList<String>) state.get(hero+"holds"));
-		itemList.remove((String) state.get(trader+"wants"));
-		addEffect(hero+"holds", itemList);
 		int coins = (int) state.get("coins");
-		addEffect("coins", coins+1);
+		newState.put("coins", coins+1);
+		
+		ArrayList<String> inventory = new ArrayList<String>();
+		if (state.get(hero+"holds") != null){
+			inventory = new ArrayList<String>((ArrayList<String>) state.get(hero+"holds"));
+		}
+		inventory.remove((String) state.get(trader+"wants"));
+		newState.put(hero+"holds", inventory);
+		
+		return newState;
 	}
 	
 	public String getTrader(){
@@ -33,26 +57,6 @@ public class Trade extends Action {
 	
 	@Override
 	public String print() {
-		return hero + " trades " + item + " with " + trader;
+		return hero + " trades with " + trader;
 	}
-
-	@Override
-	public void setState(HashMap<String, Object> state) {
-		item = (String) state.get(trader+"wants");
-		removePrecondition(trader+"place");
-		addPrecondition(trader+"place", state.get(hero+"place"));
-		
-		removePrecondition(hero+"holds");
-		addPrecondition(hero+"holds", state.get(trader+"wants"));
-		
-		removeEffect("coins");
-		int coins = (int) state.get("coins");
-		addEffect("coins", coins+1);
-		
-		removeEffect(hero+"holds");
-		ArrayList<String> itemList = new ArrayList<String>((ArrayList<String>) state.get(hero+"holds"));
-		itemList.remove((String) state.get(trader+"wants"));
-		addEffect(hero+"holds", itemList);
-	}
-	
 }

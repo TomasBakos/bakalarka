@@ -17,7 +17,7 @@ public class GameView {
 		this.goal = goal;
 	}
 	
-	public void printStartGame(HashMap<String, Object> worldState){
+	public void printStartGame(){
 		System.out.println("One night you have a bad dream of bandits capturing princess and");
 		System.out.println("taking her somewhere into the world.");
 		System.out.println("In the morning you realize the dream was not just a dream.");
@@ -25,8 +25,8 @@ public class GameView {
 		System.out.println("Note reads:");
 		System.out.println("We have your beloved princess, find us and bring us " + goal.get("coins") + " coins");
 		System.out.println("or you will never see her again.");
-		System.out.println();
 		System.out.println("Bloody bandits!!!");
+		System.out.println("Press <enter> to continue...");
 	}
 	
 	public void printEnding(){

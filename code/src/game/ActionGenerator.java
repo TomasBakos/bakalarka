@@ -5,12 +5,10 @@ import actions.*;
 import goap.Action;
 
 public class ActionGenerator {
-	private HashMap<String, Object> worldState;
 	private HashSet<Action> actions, heroActions;
 	private ArrayList<String> beings, friends, monsters, riddlers, places, items;
 	
-	public ActionGenerator(ArrayList<ArrayList<String>> gameObjects, HashMap<String, Object> worldState){
-		this.worldState = worldState;
+	public ActionGenerator(ArrayList<ArrayList<String>> gameObjects){
 		beings = gameObjects.get(0);
 		friends = gameObjects.get(1);
 		monsters = gameObjects.get(2);
@@ -23,9 +21,9 @@ public class ActionGenerator {
 		for (int i = 0; i < places.size(); i++) {
 			for (int j = 0; j < beings.size(); j++) {
 				if (beings.get(j).equals(hero)){
-					heroActions.add(new Move(beings.get(j), places.get(i), worldState));
+					heroActions.add(new Move(beings.get(j), places.get(i)));
 				}
-				actions.add(new Move(beings.get(j), places.get(i), worldState));
+				actions.add(new Move(beings.get(j), places.get(i)));
 			}
 		}
 	}
@@ -35,9 +33,9 @@ public class ActionGenerator {
 			for (int j = 0; j < monsters.size(); j++) {
 				if (i != j){
 					if (beings.get(i).equals(hero)){
-						heroActions.add(new Kill(beings.get(i), monsters.get(j), worldState));
+						heroActions.add(new Kill(beings.get(i), monsters.get(j)));
 					}
-					actions.add(new Kill(beings.get(i), monsters.get(j), worldState));
+					actions.add(new Kill(beings.get(i), monsters.get(j)));
 				}
 			}
 		}
@@ -48,9 +46,9 @@ public class ActionGenerator {
 			for (int j = 0; j < riddlers.size(); j++) {
 				if (i != j){
 					if (beings.get(i).equals(hero)){
-						heroActions.add(new Solve(beings.get(i), riddlers.get(j), worldState));
+						heroActions.add(new Solve(beings.get(i), riddlers.get(j)));
 					}
-					actions.add(new Solve(beings.get(i), riddlers.get(j), worldState));
+					actions.add(new Solve(beings.get(i), riddlers.get(j)));
 				}
 			}
 		}
@@ -61,9 +59,9 @@ public class ActionGenerator {
 			for (int j = 0; j < beings.size(); j++) {
 				if (i != j){
 					if (beings.get(i).equals(hero)){
-						heroActions.add(new Save(beings.get(i), beings.get(j), worldState));
+						heroActions.add(new Save(beings.get(i), beings.get(j)));
 					}
-					actions.add(new Save(beings.get(i), beings.get(j), worldState));
+					actions.add(new Save(beings.get(i), beings.get(j)));
 				}
 			}
 		}
@@ -73,9 +71,9 @@ public class ActionGenerator {
 		for (int i = 0; i < items.size(); i++) {
 			for (int j = 0; j < beings.size(); j++) {
 				if (beings.get(j).equals(hero)){
-					heroActions.add(new PickUp(beings.get(j), items.get(i), worldState));
+					heroActions.add(new PickUp(beings.get(j), items.get(i)));
 				}
-				actions.add(new PickUp(beings.get(j), items.get(i), worldState));
+				actions.add(new PickUp(beings.get(j), items.get(i)));
 			}
 		}
 	}
@@ -85,9 +83,9 @@ public class ActionGenerator {
 			for (int j = 0; j < friends.size(); j++) {
 				if (i != j){
 					if (beings.get(i).equals(hero)){
-						heroActions.add(new Trade(beings.get(i), friends.get(j), worldState));
+						heroActions.add(new Trade(beings.get(i), friends.get(j)));
 					}
-					actions.add(new Trade(beings.get(i), friends.get(j), worldState));
+					actions.add(new Trade(beings.get(i), friends.get(j)));
 				}
 			}
 		}

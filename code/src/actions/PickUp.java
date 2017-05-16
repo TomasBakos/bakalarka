@@ -9,19 +9,42 @@ public class PickUp extends Action {
 	
 	private String being, object;
 	
-	public PickUp(String being, String object, HashMap<String, Object> state){
+	public PickUp(String being, String object){
 		this.being = being;
 		this.object = object;
 		this.interestCost = 2;
+	}
+	
+	@Override
+	public boolean checkPreconditions(HashMap<String, Object> state) {
+		boolean preconditions = true;
+		if (!state.get(being).equals("alive")) {
+			preconditions = false;
+		}
+		//System.out.println(state.get(object));
+		if (preconditions && !state.get(object).equals("placed")){
+			preconditions = false;
+		}
+		//System.out.println(state.get(object+"place"));
+		if (preconditions && !state.get(object+"place").equals(state.get(being+"place"))){
+			preconditions = false;
+		}
+		return preconditions;
+	}
+
+	@Override
+	public HashMap<String, Object> execute(HashMap<String, Object> state) {
+		HashMap<String, Object> newState = new HashMap<String, Object>(state);
+		newState.put(object, "notplaced");
 		
-		addPrecondition(being, "alive");
-		addPrecondition(object+"place", state.get(being+"place"));
-		addPrecondition(object, "placed");
+		ArrayList<String> inventory = new ArrayList<String>();
+		if (state.get(being+"holds") != null){
+			inventory = new ArrayList<String>((ArrayList<String>) state.get(being+"holds"));
+		}
+		inventory.add(object);
+		newState.put(being+"holds", inventory);
 		
-		ArrayList<String> toList = new ArrayList<String>((ArrayList<String>)state.get(being+"holds"));
-		toList.add(object);
-		addEffect(object, "notplaced");
-		addEffect(being+"holds", toList);
+		return newState;
 	}
 	
 	public String getObject(){
@@ -32,16 +55,4 @@ public class PickUp extends Action {
 	public String print() {
 		return being + " picks up " + object;
 	}
-	
-	@Override
-	public void setState(HashMap<String, Object> state){
-		removePrecondition(object+"place");
-		addPrecondition(object+"place", state.get(being+"place"));
-		
-		removeEffect(being+"holds");
-		ArrayList<String> toList = new ArrayList<String>((ArrayList<String>)state.get(being+"holds"));
-		toList.add(object);
-		addEffect(being+"holds", toList);
-	}
-
 }

@@ -3,11 +3,11 @@ package game;
 import java.util.*;
 
 public class WorldGenerator {
-	private final int HUB_COUNT = 3;
+	private final int HUB_COUNT = 2;
 	private ArrayList<ArrayList<String>> hubs;
 	private HashMap<String, Object> worldState;
 	private HashMap<String, Object> goal;
-	private ArrayList<String> beings, friends, monsters, riddlers, places, items, placedItems;
+	private ArrayList<String> beings, friends, monsters, riddlers, places, items, placedItems, placedItemsCopy;
 	private Random rnd;
 	
 	public WorldGenerator(ArrayList<ArrayList<String>> loadedObjects){
@@ -112,10 +112,12 @@ public class WorldGenerator {
 	private void generateItems(){
 		ArrayList<String> itemsCopy = new ArrayList<String>(items);
 		placedItems = new ArrayList<String>();
+		placedItemsCopy = new ArrayList<String>();
 		for (int i = 0; i < (2 * HUB_COUNT) - 1; i++) {
 			String item = itemsCopy.get(rnd.nextInt(itemsCopy.size()));
 			worldState.put(item, "placed");
 			placedItems.add(item);
+			placedItemsCopy.add(item);
 			itemsCopy.remove(item);
 		}
 		worldState.put("coins", 0); 
@@ -133,13 +135,9 @@ public class WorldGenerator {
 		for (int i = 0; i < placesCopy.size(); i++) {
 			hubs.get(rnd.nextInt(HUB_COUNT)).add(placesCopy.get(i));
 		}
-		/*for (int i = 0; i < hubs.size(); i++) {
-			System.out.println("HUB " + i + ": " +hubs.get(i));
-		}*/
 	}
 	
 	private void generateMonster(ArrayList<String> monstersCopy, int hubIndex){
-		//maybe return new array with deleted element
 		String monster = monstersCopy.get(rnd.nextInt(monstersCopy.size()));
 		worldState.put(monster, "alive");
 		goal.put(monster, "dead");
@@ -164,7 +162,6 @@ public class WorldGenerator {
 	}
 	
 	private void generateRiddler(ArrayList<String> riddlersCopy, int hubIndex){
-		//maybe return new array with deleted element
 		String riddler = riddlersCopy.get(rnd.nextInt(riddlersCopy.size()));
 		worldState.put(riddler, "alive");
 		goal.put(riddler, "vanished");
@@ -177,7 +174,12 @@ public class WorldGenerator {
 
 		worldState.put(riddler+"holds", new ArrayList<String>());
 		beings.add(riddler);
-
+		
+		String notUsedItem = placedItems.get(rnd.nextInt(placedItems.size()));
+		String itemPlace = hubs.get(hubIndex).get(rnd.nextInt(hubs.get(hubIndex).size()));
+		worldState.put(notUsedItem+"place", itemPlace);
+		
+		placedItems.remove(notUsedItem);
 		riddlersCopy.remove(riddler);
 	}
 	
@@ -201,16 +203,22 @@ public class WorldGenerator {
 		}
 	}
 	
-	public void generateState(){
+	public long generateState(boolean randomSeed, long setSeed){
 		worldState = new HashMap<String, Object>();
 		goal = new HashMap<String, Object>();
 		rnd = new Random();
+		long seed = setSeed;
+		if (randomSeed){
+			seed = rnd.nextLong();
+		}
+		rnd.setSeed(seed);
 		goal.put("princess", "saved");
 		goal.put("coins", HUB_COUNT);
 		generateHubs();
 		generatePaths();
 		generateItems();
 		generateBeings();
+		return seed;
 	}
 	
 	public ArrayList<ArrayList<String>> getGameObjects(){
@@ -220,7 +228,7 @@ public class WorldGenerator {
 		gameObjects.add(monsters);
 		gameObjects.add(riddlers);
 		gameObjects.add(places);
-		gameObjects.add(items);
+		gameObjects.add(placedItemsCopy);
 		return gameObjects;
 	}
 	

@@ -14,7 +14,9 @@ public abstract class Action {
 		effects = new HashMap<String, Object>();
 	}
     
-	public abstract void setState(HashMap<String, Object> state);
+	public abstract boolean checkPreconditions(HashMap<String, Object> state);
+	
+	public abstract HashMap<String, Object> execute(HashMap<String, Object> state);
 	
     public abstract String print();
 	

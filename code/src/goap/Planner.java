@@ -1,7 +1,6 @@
 package goap;
 
 import java.util.*;
-import actions.*;
 
 /**
  * Planuje ktore akcie mozu byt splnene aby
@@ -23,8 +22,6 @@ public class Planner {
 	 * akcii, ktore musia byt vykonane aby sa splnil ciel 
 	 */
 	public ArrayList<Action> plan(HashSet<Action> availableActions, HashMap<String,Object> worldState, HashMap<String,Object> goal){
-		
-		
 		ArrayList<Node> leaves = new ArrayList<Node>();
 		Node root = new Node(null, 0, worldState, null, 0, countUnsatisfiedGoals(goal, worldState));
 		boolean success = false;
@@ -65,9 +62,8 @@ public class Planner {
 	private boolean buildGraph (Node parent, List<Node> leaves, HashSet<Action> usableActions, HashMap<String, Object> goal){
 		boolean found = false;
 		for (Action a : usableActions){
-			a.setState(parent.state);
-			if (inState(a.getPreconditions(),parent.state)){
-				HashMap<String, Object> currentState = populateState(parent.state, a.getEffects());
+			if (a.checkPreconditions(parent.state)){
+				HashMap<String, Object> currentState = a.execute(parent.state);
 				Node node = new Node(parent, parent.cost+a.interestCost, currentState, a, parent.level + 1, 0);
 				
 				if (parent.level > MAX_DEPTH){
@@ -99,9 +95,10 @@ public class Planner {
 			}
 
 			for (Action a : usableActions){
-				a.setState(parent.state);
-				if (inState(a.getPreconditions(),parent.state)){
-					HashMap<String, Object> currentState = populateState(parent.state, a.getEffects());
+				//System.out.println(a.print());
+				if (a.checkPreconditions(parent.state)){
+					
+					HashMap<String, Object> currentState = a.execute(parent.state);
 					Node node = new Node(parent, parent.cost+a.interestCost, currentState, a, parent.level + 1, countUnsatisfiedGoals(goal, currentState));
 					
 					boolean add = true;
@@ -187,7 +184,6 @@ public class Planner {
 		return true;
 	}
 	
-	//TODO: prerobit na Set-y nech sa to ta rychlo porovnat
 	private boolean checkArrays(ArrayList<String> array1, ArrayList<String> array2){;
 		for (String s : array1){
 			if (!array2.contains(s)){
@@ -200,99 +196,6 @@ public class Planner {
 			}
 		}
 		return true;
-	}
-	
-	/**
-	 * Aplikuje stateChange na currentState.
-	 */
-	public HashMap<String,Object> populateState(HashMap<String,Object> currentState, HashMap<String,Object> stateChange) {
-		HashMap<String,Object> state = new HashMap<String,Object>();
-		for (Map.Entry<String, Object> entry : currentState.entrySet()){
-			state.put(entry.getKey(),entry.getValue());
-		}
-		
-		for (Map.Entry<String, Object> entry : stateChange.entrySet()){
-			if (state.containsKey(entry.getKey())){
-				state.replace(entry.getKey(), entry.getValue());
-			} else {
-				state.put(entry.getKey(), entry.getValue());
-			}
-		}
-		
-		return state;
-	}
-	
-	public int ratePlan(ArrayList<Action> plan){
-		if (plan == null){
-			return Integer.MIN_VALUE;
-		}
-		int planRating = 100;
-		for (int i = 0; i < plan.size(); i++) {
-			if (plan.get(i) instanceof Move){
-				int lastIndex = i+1;
-				while (plan.get(lastIndex) instanceof Move){
-					lastIndex++;
-				}
-				//System.out.println("Odcitavam za viacnasobny Move: " + (lastIndex-i-1));
-				planRating -= lastIndex-i-1;
-				i = lastIndex;
-			}
-		}
-		
-		for (int i = 0; i < plan.size(); i++) {
-			if (plan.get(i) instanceof PickUp){
-				if (plan.get(i+1) instanceof Kill || plan.get(i+1) instanceof Trade){
-					//System.out.println("Odcitavam za PickUp: " + (3));
-					planRating -= 5;
-				}
-				if (plan.get(i+1) instanceof PickUp){
-					planRating -= 3;
-				}
-			}
-		}
-		
-		for (int i = 0; i < plan.size(); i++) {
-			if (plan.get(i) instanceof Kill || plan.get(i) instanceof Trade || plan.get(i) instanceof Solve){
-				if (plan.get(i+1) instanceof Kill || plan.get(i+1) instanceof Trade || plan.get(i+1) instanceof Solve){
-					//System.out.println("Odcitavam za zdvojeny Kill/Trade/Solve: " + (5));
-					planRating -= 5;
-				}
-				if (plan.get(i+1) instanceof PickUp){
-					//System.out.println("Odcitavam za PickUp po Kill/Trade/Solve: " + (3));
-					planRating -= 3;
-				}
-			}
-		}
-		
-		ArrayList<Action> partialPlan = new ArrayList<Action>();
-		for (int i = 0; i < plan.size(); i++) {
-			if (plan.get(i) instanceof Kill || plan.get(i) instanceof Solve){
-				partialPlan.add(plan.get(i));
-			}
-		}
-		
-		for (int i = 0; i < partialPlan.size() - 1; i++) {
-			if (partialPlan.get(i) instanceof Kill){
-				int lastIndex = i+1;
-				while (lastIndex < partialPlan.size() && partialPlan.get(lastIndex) instanceof Kill){
-					lastIndex++;
-				}
-				//System.out.println("Odcitavam za vianasobny Kill: " + ((lastIndex-i-1) * 5));
-				planRating -= (lastIndex-i-1) * 5;
-				i = lastIndex - 1;
-			} else if (partialPlan.get(i) instanceof Solve){
-				int lastIndex = i+1;
-				while (lastIndex < partialPlan.size() && partialPlan.get(lastIndex) instanceof Solve){
-					lastIndex++;
-				}
-				//System.out.println("Odcitavam za vianasobny Solve: " + ((lastIndex-i-1) * 5));
-				planRating -= (lastIndex-i-1) * 5;
-				i = lastIndex - 1;
-			}
-		}
-		//System.out.println("------------------------------");
-		
-		return planRating;
 	}
 	
 	private class Node implements Comparable<Node>{

@@ -20,6 +20,7 @@ public class GameWorld {
 	private HashMap<String, Object> goal;
 	private Planner planner;
 	private ArrayList<Action> plan;
+	private long seed;
 	private int rating;
 	
 	private void storeGameObjects(){
@@ -59,25 +60,86 @@ public class GameWorld {
 		}
 	}
 	
-	public void createNewWorld() throws FileNotFoundException{
+	public void createNewWorld(boolean randomSeed, long setSeed) throws FileNotFoundException{
 		fileLoader = new FileLoader();
 		loadedObjects = fileLoader.loadEntities();
 		
 		worldGen = new WorldGenerator(loadedObjects);
-		worldGen.generateState();
+		seed = worldGen.generateState(randomSeed, setSeed);
 		worldState = worldGen.getWorldState();
 		goal = worldGen.getGoal();
 		gameObjects = worldGen.getGameObjects();
 		storeGameObjects();
 		
-		actionGen = new ActionGenerator(gameObjects, worldState);
+		actionGen = new ActionGenerator(gameObjects);
 		actionGen.generateActions("prince");
 		ArrayList<HashSet<Action>> genActions = actionGen.getActions();
 		actions = genActions.get(0);
 		heroActions = genActions.get(1);
 		
 	}
-
+	
+	public void createWorldFromFile(String file) throws FileNotFoundException{
+		fileLoader = new FileLoader();
+		loadedObjects = fileLoader.loadEntities();
+		worldState = fileLoader.loadState(file);
+		worldState.put("coins", ((Double) worldState.get("coins")).intValue());
+		seed = 0;
+		goal = new HashMap<String, Object>();
+		goal.put("princess", "saved");
+		goal.put("coins", getNumberOfCoins(worldState));
+		
+		
+		gameObjects = new ArrayList<ArrayList<String>>();
+		ArrayList<String> newBeings = new ArrayList<String>();
+		newBeings.add("prince");
+		newBeings.add("princess");
+		for (String friend: loadedObjects.get(0)){
+			newBeings.add(friend);
+		}
+		for (String monster: loadedObjects.get(1)){
+			newBeings.add(monster);
+		}
+		for (String riddler: loadedObjects.get(2)){
+			newBeings.add(riddler);
+		}
+		gameObjects.add(newBeings);
+		gameObjects.add(loadedObjects.get(0));
+		gameObjects.add(loadedObjects.get(1));
+		gameObjects.add(loadedObjects.get(2));
+		gameObjects.add(loadedObjects.get(3));
+		gameObjects.add(getPlacedItems(worldState));
+		storeGameObjects();
+		
+		actionGen = new ActionGenerator(gameObjects);
+		actionGen.generateActions("prince");
+		ArrayList<HashSet<Action>> genActions = actionGen.getActions();
+		actions = genActions.get(0);
+		heroActions = genActions.get(1);
+	}
+	
+	private ArrayList<String> getPlacedItems(HashMap<String, Object> state){
+		ArrayList<String> placedItems = new ArrayList<String>();
+		for (Map.Entry<String, Object> tEntry : state.entrySet()){
+			if (loadedObjects.get(4).contains(tEntry.getKey())){
+				placedItems.add(tEntry.getKey());
+			}
+		}
+		return placedItems;
+	}
+	
+	private int getNumberOfCoins(HashMap<String, Object> state){
+		int result = 0;
+		for (Map.Entry<String, Object> tEntry : state.entrySet()){
+			if (loadedObjects.get(0).contains(tEntry.getKey())){
+				if (tEntry.getValue().equals("alive")){
+					result++;
+				}
+			}
+		}
+		return result;
+	}
+	
 	public ArrayList<Action> createPlan(){
 		planner = new Planner(true);
 		HashMap<String,Object> planningState = new HashMap<String, Object>(worldState);
@@ -86,7 +148,7 @@ public class GameWorld {
 	}
 	
 	public int rateWorld(){
-		rating = planner.ratePlan(plan);
+		rating = PlanEvaluator.ratePlan(plan);
 		return rating;
 	}
 	
@@ -132,6 +194,10 @@ public class GameWorld {
 
 	public ArrayList<Action> getPlan() {
 		return plan;
+	}
+
+	public long getSeed() {
+		return seed;
 	}
 
 	public int getRating() {

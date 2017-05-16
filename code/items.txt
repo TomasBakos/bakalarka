@@ -1,10 +1,10 @@
-magic sword
-rusty axe
-gold key
-elven bow
-hard rock
-silver dagger
-suspicious coin
-fairy dust
+magic_sword
+rusty_axe
+gold_key
+elven_bow
+hard_rock
+silver_dagger
+suspicious_coin
+fairy_dust
 bones
-mystery box
+mystery_box

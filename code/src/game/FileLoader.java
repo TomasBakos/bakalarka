@@ -2,8 +2,14 @@ package game;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 public class FileLoader {
 	private ArrayList<String> friends, monsters, riddlers, places, items;
@@ -75,6 +81,18 @@ public class FileLoader {
 		}
 		loadedObjects.add(items);
 		scan.close();
+	}
+	
+	public HashMap<String, Object> loadState(String file) throws FileNotFoundException{
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		Scanner fileIn = new Scanner(new FileReader(file));
+		String json = fileIn.next();
+		
+		Type collectionType = new TypeToken<HashMap<String, Object>>(){}.getType();
+		HashMap<String, Object> state = gson.fromJson(json, collectionType);
+		fileIn.close();
+		
+		return state;
 	}
 	
 	public ArrayList<ArrayList<String>> getLoadedObjects(){

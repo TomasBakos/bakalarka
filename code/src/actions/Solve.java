@@ -9,31 +9,48 @@ public class Solve extends Action {
 	
 private String solver, riddler;
 	
-	public Solve(String solver, String riddler, HashMap<String, Object> state){
+	public Solve(String solver, String riddler){
 		this.solver = solver;
 		this.riddler = riddler;
-		
-		addPrecondition(solver, "alive");
-		addPrecondition(riddler, "alive");
-		addPrecondition(riddler+"place", state.get(solver+"place"));
-		
-		addEffect(riddler, "vanished");
+	}
+	
+	@Override
+	public boolean checkPreconditions(HashMap<String, Object> state) {
+		boolean preconditions = true;
+		if (!state.get(solver).equals("alive")) {
+			preconditions = false;
+		}
+		if (preconditions && !state.get(riddler).equals("alive")){
+			preconditions = false;
+		}
+		if (preconditions && !state.get(riddler+"place").equals(state.get(solver+"place"))){
+			preconditions = false;
+		}
+		return preconditions;
+	}
+
+	@Override
+	public HashMap<String, Object> execute(HashMap<String, Object> state) {
+		HashMap<String, Object> newState = new HashMap<String, Object>(state);
+		newState.put(riddler, "vanished");
 		
 		ArrayList<String> placeList = new ArrayList<String>();
 		if (state.get("from" + state.get(riddler+"place") + "to") != null){
 			placeList = new ArrayList<String>((ArrayList<String>) state.get("from" + state.get(riddler+"place") + "to"));
 		}
 		placeList.add((String) state.get(riddler+"blocks"));
-		addEffect("from" + state.get(riddler+"place") + "to", placeList);
+		newState.put("from" + state.get(riddler+"place") + "to", placeList);
 		
 		ArrayList<String> blocksList = new ArrayList<String>();
 		if (state.get("from" + state.get(riddler+"blocks") + "to") != null){
 			blocksList = new ArrayList<String>((ArrayList<String>) state.get("from" + state.get(riddler+"blocks") + "to"));
 		}
 		blocksList.add((String) state.get(riddler+"place"));
-		addEffect("from" + state.get(riddler+"blocks") + "to", blocksList);
+		newState.put("from" + state.get(riddler+"blocks") + "to", blocksList);
+		
+		return newState;
 	}
-
+	
 	public String getRiddler(){
 		return riddler;
 	}
@@ -41,27 +58,5 @@ private String solver, riddler;
 	@Override
 	public String print() {
 		return solver + " solves " + riddler + "'s riddle";
-	}
-	
-	@Override
-	public void setState(HashMap<String, Object> state){
-		removePrecondition(riddler+"place");
-		addPrecondition(riddler+"place", state.get(solver+"place"));
-		
-		removeEffect("from" + state.get(riddler+"place") + "to");
-		ArrayList<String> placeList = new ArrayList<String>();
-		if (state.get("from" + state.get(riddler+"place") + "to") != null){
-			placeList = new ArrayList<String>((ArrayList<String>) state.get("from" + state.get(riddler+"place") + "to"));
-		}
-		placeList.add((String) state.get(riddler+"blocks"));
-		addEffect("from" + state.get(riddler+"place") + "to", placeList);
-		
-		removeEffect("from" + state.get(riddler+"blocks") + "to");
-		ArrayList<String> blocksList = new ArrayList<String>();
-		if (state.get("from" + state.get(riddler+"blocks") + "to") != null){
-			blocksList = new ArrayList<String>((ArrayList<String>) state.get("from" + state.get(riddler+"blocks") + "to"));
-		}
-		blocksList.add((String) state.get(riddler+"place"));
-		addEffect("from" + state.get(riddler+"blocks") + "to", blocksList);
 	}
 }

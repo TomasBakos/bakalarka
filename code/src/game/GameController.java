@@ -1,27 +1,30 @@
 package game;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.util.*;
-import actions.*;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import actions.Save;
 import goap.*;
 
 public class GameController {
 	private GameView view;
 	private GameWorld world;
-	private Planner planner, aStarPlanner;
+	private Planner planner;
 	
 	public GameController() throws FileNotFoundException{
 		world = new GameWorld();
-		planner = new Planner(false);
-		aStarPlanner = new Planner(true);
+		planner = new Planner(true);
 	}
 	
-	private HashSet<Action> getAvailableActions(){
+	private HashSet<Action> getAvailableActions(HashMap<String, Object> state){
 		HashSet<Action> availableActions = new HashSet<Action>();
 		for (Action a : world.getActions()){
-			a.setState(world.getWorldState());
-			if (planner.inState(a.getPreconditions(), world.getWorldState())){
+			if (a.checkPreconditions(state)){
 				availableActions.add(a);
 			}
 		}
@@ -31,141 +34,187 @@ public class GameController {
 	private HashSet<Action> getAvailableHeroActions(HashMap<String, Object> state){
 		HashSet<Action> availableActions = new HashSet<Action>();
 		for (Action a : world.getHeroActions()){
-			a.setState(state);
-			if (planner.inState(a.getPreconditions(), state)){
-				availableActions.add(a);
+			if (a.checkPreconditions(state)){
+				if (a instanceof Save && !((Save) a).getVictim().equals("princess")){
+				} else {
+					availableActions.add(a);
+				}
 			}
 		}
 		return availableActions;
 	}
 	
-	private boolean checkGoal(){
-		return planner.inState(world.getGoal(), world.getWorldState());
+	private boolean checkGoal(HashMap<String, Object> state){
+		return planner.inState(world.getGoal(), state);
 	}
 	
-	
-	
-	public void play() throws FileNotFoundException{
-		
-		
-		System.out.println("STARTING GAME!!!");
-		/*world.createNewWorld();
-		long normalTime = 0;
-		HashMap<String,Object> planningState = new HashMap<String, Object>(worldState);
-		System.out.println("STARTING NORMAL PLANNING");
-		long startTime = System.nanoTime();
-		Stack<Action> plan = planner.plan(heroActions, planningState, goal);
-		normalTime = (System.nanoTime() - startTime);
-		
-		long aStarTime = 0;
-		
-		System.out.println("STARTING A-STAR PLANNING");
-		long startTime = System.nanoTime();
-		ArrayList<Action> aStarPlan = world.createPlan();
-		aStarTime = (System.nanoTime() - startTime);
-		
-		while(aStarPlan == null){			
-			world.createNewWorld();
+	public void play() throws UnsupportedEncodingException, IOException{
+		Scanner in = new Scanner(System.in);
+		System.out.print("1: Generate and Play, ");
+		System.out.print("2: Generate to File, ");
+		System.out.println("3: Play from File");
+		int playType = in.nextInt();
+
+		if (playType == 2){
+			generateToFile(in);
+		} else {
 			
-			planningState = new HashMap<String, Object>(worldState);
-			System.out.println("STARTING NORMAL PLANNING");
-			startTime = System.nanoTime();
-			plan = planner.plan(heroActions, planningState, goal);
-			normalTime = (System.nanoTime() - startTime);
+			if (playType == 1){
+				generateAndPlay(in);
+			} else if (playType == 3){
+				playFromFile(in);
+			}
+
+			if (world.getRating() == Integer.MIN_VALUE){
+				System.out.println("World was unable to generate.");
+				in.close();
+				return;
+			}
+
+			System.out.println("PLAN IS:");
+			for (Action a : world.getPlan()){
+				System.out.print(a.print() + ", ");
+			}
+			System.out.println();
+			System.out.println("RATING: " + world.getRating());
+			System.out.println("SEED: " + world.getSeed());
+
+			HashMap<String, Object> playState = world.getWorldState();
+
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println();
+			System.out.println();
+
+			view = new GameView(world.getFriends(), world.getMonsters(), world.getRiddlers(), world.getGoal());
+			view.printStartGame();
+
+			in.nextLine();
+
+			ArrayList<Action> availableActions = new ArrayList<Action>();
+			while (!checkGoal(playState)){
+				availableActions = new ArrayList<Action>(getAvailableHeroActions(playState));
+				view.printTurn(playState, availableActions);
+
+				System.out.println();
+				int option = in.nextInt() - 1;
+				if (option > -1 && option < availableActions.size()){
+					playState = availableActions.get(option).execute(playState);
+				}
+			}
+			view.printEnding();
+			in.nextLine();
+		}
+		in.close();
+	}
+	
+	private void generateAndPlay(Scanner in) throws FileNotFoundException{
+		System.out.print("1: Generate random world and play, ");
+		System.out.println("2: Generate world from seed and play ");
+		int option = in.nextInt();
+		if (option == 1){
+			System.out.println("GENERATING WORLDS!!!");
+			ArrayList<GameWorld> worlds = new ArrayList<GameWorld>();
+			for (int i = 0; i < 1000; i++) {
+				world = new GameWorld();
+				world.createNewWorld(true, 0);
+				world.createPlan();
+				world.rateWorld();
+				worlds.add(world);
+			}
 			
-			System.out.println("STARTING A-STAR PLANNING");
-			startTime = System.nanoTime();
-			aStarPlan = world.createPlan();
-			aStarTime = (System.nanoTime() - startTime);
-		}
-		
-		System.out.println("NORMAL PLAN: " + normalTime);
-		while (!plan.isEmpty()){
-			System.out.print(plan.pop().print() + ", ");
-		}
-		System.out.println();
-		
-		System.out.println("------------------");
-		
-		System.out.println("A STAR PLAN: " + aStarTime);
-		System.out.println(aStarPlan.size());
-		for (Action a : aStarPlan){
-			System.out.print(a.print() + ", ");
-		}*/
-		
-		ArrayList<GameWorld> worlds = new ArrayList<GameWorld>();
-		for (int i = 0; i < 1000; i++) {
+			for(GameWorld gw : worlds){
+				if (gw.getRating() > world.getRating()){
+					world =  gw;
+				}
+			}
+			
+		} else if (option == 2){
+			System.out.println("Put in seed to generate from:");
+			long seed = in.nextLong();
 			world = new GameWorld();
-			world.createNewWorld();
+			world.createNewWorld(false, seed);
 			world.createPlan();
 			world.rateWorld();
-			worlds.add(world);
 		}
-		
-		for(GameWorld gw : worlds){
-			if (gw.getRating() > world.getRating()){
-				System.out.println(gw.getRating());
-				world =  gw;
-			}
-		}
-		
-		if (world.getRating() == Integer.MIN_VALUE){
-			System.out.println("Plan was unable to generate.");
-			return;
-		}
-		System.out.println(world.getRating());
-		System.out.println("PLAN IS:");
-		for (Action a : world.getPlan()){
-			System.out.print(a.print() + ", ");
-		}
-		System.out.println();
-		System.out.println("RATING: " + world.getRating());
-		
-		
-		HashMap<String, Object> playState = world.getWorldState();
-		
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		
-		view = new GameView(world.getFriends(), world.getMonsters(), world.getRiddlers(), world.getGoal());
-		view.printStartGame(playState);
-		
-		Scanner in = new Scanner(System.in);
-		in.nextLine();
-		
-		ArrayList<Action> availableActions = new ArrayList<Action>();
-		while (!checkGoal()){
-			availableActions = new ArrayList<Action>(getAvailableHeroActions(playState));
-			view.printTurn(playState, availableActions);
+	}
+	
+	private void generateToFile(Scanner in) throws UnsupportedEncodingException, IOException{
+		System.out.print("1: Generate random world(s) to file(s), ");
+		System.out.println("2: Generate world from seed to file ");
+		int option = in.nextInt();
+		System.out.println("Generate pretty print file? (true / false)");
+		boolean pretty = in.nextBoolean();
+		if (option == 1){
+			System.out.println("Put in number of worlds to generate: ");
+			int count = in.nextInt();
 			
-			System.out.println();
-			int option = in.nextInt() - 1;
-			if (option > -1 && option < availableActions.size()){
-				playState = planner.populateState(playState, availableActions.get(option).getEffects());
+			System.out.println("GENERATING WORLDS!!!");
+			ArrayList<GameWorld> worlds = new ArrayList<GameWorld>();
+			for (int i = 0; i < count; i++) {
+				world = new GameWorld();
+				world.createNewWorld(true, 0);
+				world.createPlan();
+				world.rateWorld();
+				worlds.add(world);
+			}
+			Gson gson = new Gson();
+			Type type = new TypeToken<HashMap<String, Object>>(){}.getType();
+			for (int i = 0; i < worlds.size(); i++) {
+				Writer writer = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("worlds/world" + i + ".json")));
+				String json = gson.toJson(worlds.get(i).getWorldState(), type);
+				writer.write(json);
+				writer.close();
+				if (pretty){
+					Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
+					Writer writerPretty = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("worlds/world" + i + "_pretty.json")));
+					String jsonPretty = gsonPretty.toJson(worlds.get(i).getWorldState(), type);
+					writerPretty.write(jsonPretty);
+					writerPretty.close();
+				}
+			}
+			
+		} else if (option == 2){
+			System.out.println("Put in seed to generate from: ");
+			long seed = in.nextLong();
+			world = new GameWorld();
+			world.createNewWorld(false, seed);
+			world.createPlan();
+			world.rateWorld();
+			Gson gson = new Gson();
+			Type type = new TypeToken<HashMap<String, Object>>(){}.getType();
+			Writer writer = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("worlds/custom_world.json")));
+			String json = gson.toJson(world.getWorldState(), type);
+			writer.write(json);
+			writer.close();
+			if (pretty){
+				Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
+				Writer writerPretty = new BufferedWriter(new OutputStreamWriter( new FileOutputStream("worlds/custom_world_pretty.json")));
+				String jsonPretty = gsonPretty.toJson(world.getWorldState(), type);
+				writerPretty.write(jsonPretty);
+				writerPretty.close();
 			}
 		}
-		view.printEnding();
-		in.nextLine();
-		in.close();
+	}
+	
+	private void playFromFile(Scanner in) throws FileNotFoundException{
+		System.out.println("Put in relative address to file: ");
+		String file = in.next();
+		world = new GameWorld();
+		world.createWorldFromFile(file);
+		world.createPlan();
+		world.rateWorld();
+		
+		if (world.getPlan() == null){
+			System.out.println("This world doesnt have suitable story to play");
+		}
+		
 	}
 	
 	
 	public void testing(){
-		HashMap<String, Object> a = new HashMap<String, Object>();
-		HashMap<String, Object> b = new HashMap<String, Object>();
-		a.put("coins", 0);
-		a.put("prince", "alive");
-		a.put("holds", new ArrayList<String>());
 		
-		b.put("coins", 0);
-		b.put("prince", "alive");
-		b.put("holds", new ArrayList<String>());
-		ArrayList<String> haha = (ArrayList<String>) b.get("holds");
-		haha.add("kok");
-		System.out.println(planner.inState(a, b));
 	}
 	
 	

@@ -6,7 +6,7 @@
 \usepackage{amsfonts} %amsthm ?
 \usepackage{amssymb}
 \usepackage[utf8]{inputenc}
-\usepackage[top=2.5cm, bottom=2.5cm, right=2.5cm, left=3.5cm]{geometry}  %okraje
+\usepackage[top=2.5cm, bottom=2.5cm, right=2cm, left=3.5cm]{geometry}  %okraje
 
 \usepackage{graphicx}
 \usepackage{times}
@@ -88,11 +88,12 @@ keywordstyle=\color{black}\bfseries
 \begin{document}
 
 \input firstpages.tex
+\input 00_abstrakt.tex
 
 \tableofcontents
 \newpage
 
-\chapter{Úvod}
+\chapter*{Úvod}
 \input 00_uvod.tex
 
 \chapter{Východiská}
@@ -106,6 +107,12 @@ keywordstyle=\color{black}\bfseries
 
 \chapter{Implementácia}
 \input 04_implementacia.tex
+
+\chapter{Výsledky}
+\input 05_vysledky.tex
+
+\chapter*{Záver}
+\input 06_zaver.tex
 
 \printbibliography
 %\addcontentsline{toc}{chapter}{Zdroje}  %pridanie nadpisu zdrojov k obsahu

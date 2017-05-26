@@ -1,0 +1,14 @@
+Cieľom tejto práce bolo navrhnúť a implementovať systém na tvorbu interaktívnych príbehov v dobrodružných textových hrách. Cieľ sme sa rozhodli splniť pomocou systému, ktorý náhodne vygeneruje herné svety, potom pomocou plánovania v nich vytvorí príbeh, následne ohodnotí príbehy podľa kritérií dynamiky príbehu a používateľovi sa vyberie najlepšie ohodnotený. Tento príbeh si potom používateľ môže zahrať v našej dobrodružnej textovej hre, ktorá je súčasťou nášho systému.\par
+Herný svet sme repezentovali pomocou Java objektu HashMap, ktorý obsahuje kľúče a hodnoty. Kľúče simulujú názvy predikátov spolu so vstupnými hodnotami predikátu a hodnoty HashMapy sú kvázi návratovou hodnotou predikátu. Buď generujeme svet náhodne alebo ho vieme aj načítať zo súboru.\par
+Na plánovanie sme použili vyhľadávanie A*. Toto je grafový algoritmus, ktorý pomocou heuristiky hľadá cestu z počiatočného stavu herného sveta do konečného. Cesta sa zkladá z akcií, ktoré ovplyvňujú herný svet a tieto zároveň tvoria náš príbeh.\par
+Ohodnotenie príbehu v našom systéme spočíva v analyzovaní postupnosti akcií vo vygenerovanom príbehu. Máme za to že príbeh by mal byť rovnomerne rozložený a teda, že by sa mali striedať menej zaujímavé akcie s viac zaujímavými. Najlepšie ohodnotený príbeh našim systémom si používateľ môže zahrať v nami implementovanej textovej hre.\par
+Výsledkom našej práce je teda aplikácia, ktorá ponúkne používateľovi zaujímavý príbeh, ktorý si následne môže zahrať, čo poskytuje interaktivitu s príbehom. 
+\\
+\\
+\\
+\\
+\section*{Ďaľší vývoj}
+V rámci ďaľšieho vývoja aplikácie by sa mohla vylepšiť reprezentácia akcií, ktoré by sa nevytvárali napevno v aplikácii ale dali by sa načítavať zo súboru. Podobne by sme mohli načítavať zo súboru aj typy predikátov, ktoré reprezentujú herný svet. Toto by prispelo ku ľahšej modifikácii príbehov aj osobou, ktorá sa nevyzná v programovaní.\par
+Jedným z vylepšení by mohlo byť aj vytvorenie väčšieho početu zápletiek. Toto by prispelo ku možnosti lepšie analyzovať vytvorený príbeh a teda príbehy by boli kvalitnejšie.\par
+Posledným aspektom ďaľšieho vývoja by bolo vytvoriť lepšiu heuristiku pre plánovanie, čo by viedlo ku optimálnejšiemu plánovaniu a teda by sa dali vytárať aj dlhšie príbehy ako v našej práci.
+
